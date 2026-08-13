@@ -84,8 +84,13 @@ describe('Fix 2 — reconnect() guard thẻ ma (gom 1 chỗ cho 4 đường)', (
     // (zca-js load qua createRequire → KHÔNG mock được, login thật throw → bắt bằng catch.
     //  Test chốt phần GUARD: query đúng select + nick thật KHÔNG bị return sớm như thẻ ma.)
     await zaloPool.reconnect('real-1', CREDS).catch(() => {});
+    // 2026-08-13: select đủ 4 trường — disconnectReason (guard manual 2026-06-16)
+    // + proxyUrl (AN AN anti-lock: reconnect luôn lấy proxy từ DB, không tin param).
     expect(prismaMock.zaloAccount.findUnique).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { id: 'real-1' }, select: { zaloUid: true, archivedAt: true } }),
+      expect.objectContaining({
+        where: { id: 'real-1' },
+        select: { zaloUid: true, archivedAt: true, disconnectReason: true, proxyUrl: true },
+      }),
     );
     // Bằng chứng "không return sớm": nick thật chiếm in-flight guard (reconnecting),
     // khác nhánh thẻ ma return TRƯỚC khi add. (Pool tự nhả guard ở finally sau khi login thật fail.)

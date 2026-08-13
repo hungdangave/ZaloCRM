@@ -13,6 +13,7 @@
 import type { Server } from 'socket.io';
 import { zaloPool } from '../modules/zalo/zalo-pool.js';
 import { zaloRateLimiter } from '../modules/zalo/zalo-rate-limiter.js';
+import { awaitSendTurn } from '../modules/zalo/send-pacing.js';
 import { logger } from './utils/logger.js';
 import { prisma } from './database/prisma-client.js';
 
@@ -180,6 +181,10 @@ async function exec<T>(opts: ExecOptions, fn: (api: any) => Promise<T>): Promise
   if (!limit.allowed) {
     throw new ZaloOpError(limit.reason || 'Rate limited', 'RATE_LIMITED', 429);
   }
+
+  // 2b. AN AN anti-lock 2026-08-13: giãn nhịp giống người per-account (send-pacing.ts).
+  // Rate limiter chỉ CHẶN vượt trần; lớp này ngăn burst dưới trần (20 tin/2s = cờ bot).
+  await awaitSendTurn(accountId, category);
 
   // 3. Execute with retry on session expiry + transient network blip.
   //    MAX_ATTEMPTS=3 để lỗi socket tạm thời (album nhiều ảnh) có cơ hội thử lại.

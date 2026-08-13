@@ -20,13 +20,14 @@ import { startMessageSync, stopMessageSync } from './zalo-message-sync.js';
 import { backfillIfEmpty } from './zalo-history-backfill.js';
 import { readFile } from 'fs/promises';
 import { imageSize } from 'image-size';
-import { withProxy } from './proxy-util.js';
+import { buildZaloNetworkOptions, type ZaloNetworkOptions } from './proxy-util.js';
 import { writeTransition, type ZaloStatus, type StatusReason } from './status-log-service.js';
 
 // zca-js has no reliable ESM type exports — load via CJS interop
 const require = createRequire(import.meta.url);
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const { Zalo } = require('zca-js') as { Zalo: new (opts: { logging: boolean; selfListen?: boolean; imageMetadataGetter?: (path: string) => Promise<{ width: number; height: number; size: number }> }) => any };
+// AN AN anti-lock 2026-08-13: + agent/polyfill — proxy per-account THẬT (xem proxy-util.ts).
+const { Zalo } = require('zca-js') as { Zalo: new (opts: { logging: boolean; selfListen?: boolean; imageMetadataGetter?: (path: string) => Promise<{ width: number; height: number; size: number }>; agent?: unknown; polyfill?: unknown }) => any };
 
 async function imageMetadataGetter(filePath: string) {
   const data = await readFile(filePath);
@@ -186,10 +187,28 @@ class ZaloAccountPool {
       logger.info(`[zalo:${accountId}] loginQR — circuit breaker history cleared (manual QR re-login)`);
     }
 
+    // AN AN anti-lock 2026-08-13: proxyUrl LUÔN lấy từ DB nếu caller không truyền —
+    // nguồn chân lý 1 chỗ, không để đường gọi nào "quên" proxy rồi chạy IP thật server.
+    let effectiveProxyUrl = proxyUrl;
+    if (effectiveProxyUrl === undefined) {
+      const rec = await runSystemQuery(() => prisma.zaloAccount.findUnique({
+        where: { id: accountId }, select: { proxyUrl: true },
+      }));
+      effectiveProxyUrl = rec?.proxyUrl ?? null;
+    }
+    // Fail-fast: proxy cấu hình hỏng → KHÔNG login (thà đứng còn hơn lộ IP thật cả cụm).
+    let netOpts: ZaloNetworkOptions;
+    try {
+      netOpts = buildZaloNetworkOptions(effectiveProxyUrl, accountId);
+    } catch (err) {
+      void this.emitAccountEventToOrg(accountId, 'zalo:error', { accountId, error: String(err) });
+      throw err;
+    }
+
     const epoch = ++this.epochCounter;
     // (5) Bump epoch + set instance mới NGAY → mọi autoReconnect timer cũ đang chờ (30s/2min)
     //     khi fire sẽ thấy epoch lệch / status mới và bỏ qua, không ghi đè instance QR mới.
-    const zalo = new Zalo({ logging: false, selfListen: true, imageMetadataGetter });
+    const zalo = new Zalo({ logging: false, selfListen: true, imageMetadataGetter, ...netOpts });
     this.instances.set(accountId, { zalo, api: null, status: 'qr_pending', lastActivity: new Date(), epoch });
     logger.info(`[zalo:${accountId}] loginQR — fresh instance created (epoch=${epoch}), waiting for QR event…`);
 
@@ -205,7 +224,7 @@ class ZaloAccountPool {
     const isCurrentEpoch = () => this.instances.get(accountId)?.epoch === epoch;
 
     try {
-      const api: any = await withProxy(proxyUrl, () => zalo.loginQR({}, (event: any) => {
+      const api: any = await zalo.loginQR({}, (event: any) => {
         if (!isCurrentEpoch()) return; // phiên cũ bị thay → bỏ qua mọi event (FIX #6)
         switch (event.type) {
           case 0: // QRCodeGenerated
@@ -240,7 +259,7 @@ class ZaloAccountPool {
             });
             break;
         }
-      }));
+      });
 
       // FIX #6 (2026-06-16, code-review): epoch guard KHÔNG chỉ trong callback mà CẢ sau khi
       // loginQR resolve. Nếu giữa lúc chờ resolve có teardown + tạo instance MỚI (autoReconnect
@@ -338,7 +357,10 @@ class ZaloAccountPool {
     const eligibility = await runSystemQuery(() =>
       prisma.zaloAccount.findUnique({
         where: { id: accountId },
-        select: { zaloUid: true, archivedAt: true, disconnectReason: true },
+        // AN AN anti-lock 2026-08-13: + proxyUrl — reconnect LUÔN lấy proxy từ DB.
+        // Trước đây 4/6 đường gọi (boot app.ts, health-check ×2, zalo-operations retry)
+        // quên truyền proxyUrl → sau 1 lần rớt phiên là số chạy IP thật của server.
+        select: { zaloUid: true, archivedAt: true, disconnectReason: true, proxyUrl: true },
       }),
     );
     if (!eligibility || eligibility.zaloUid === null || eligibility.archivedAt !== null) {
@@ -365,19 +387,31 @@ class ZaloAccountPool {
     }
     this.reconnecting.add(accountId);
 
+    // AN AN anti-lock 2026-08-13: proxy lấy từ DB (eligibility) làm chân lý; param chỉ là
+    // fallback khi DB không có (không xảy ra thực tế — giữ để tương thích chữ ký cũ).
+    const effectiveProxyUrl = eligibility.proxyUrl ?? proxyUrl ?? null;
+    let netOpts: ZaloNetworkOptions;
+    try {
+      netOpts = buildZaloNetworkOptions(effectiveProxyUrl, accountId);
+    } catch (err) {
+      this.reconnecting.delete(accountId);
+      void this.emitAccountEventToOrg(accountId, 'zalo:reconnect-failed', { accountId, error: String(err) });
+      return;
+    }
+
     // Fix flap 2026-06-06: dọn listener/WS cũ trước khi tạo mới (tránh duplicate WS
     // → Zalo evict → 'closed' loop). stop() = ws.close(1000)+reset, an toàn.
     this.teardownExisting(accountId);
     const epoch = ++this.epochCounter;
-    const zalo = new Zalo({ logging: false, selfListen: true, imageMetadataGetter });
+    const zalo = new Zalo({ logging: false, selfListen: true, imageMetadataGetter, ...netOpts });
     this.instances.set(accountId, { zalo, api: null, status: 'connecting', lastActivity: new Date(), epoch });
 
     try {
-      const api: any = await withProxy(proxyUrl, () => zalo.login({
+      const api: any = await zalo.login({
         cookie: credentials.cookie,
         imei: credentials.imei,
         userAgent: credentials.userAgent,
-      }));
+      });
 
       const instance = this.instances.get(accountId)!;
       instance.api = api;
@@ -597,9 +631,23 @@ class ZaloAccountPool {
             // bao giờ tới 'connected' (api=null) nên không bị clear nhầm.
             ...(status === 'connected' ? { lastConnectedAt: new Date(), disconnectReason: null, disconnectedAt: null, archivedAt: null } : {}),
           },
-          select: { orgId: true, ownerUserId: true },
+          select: { orgId: true, ownerUserId: true, displayName: true },
         });
       });
+
+      // AN AN anti-lock 2026-08-13 (mục 6.3+6.5 brief): số RỚT PHIÊN cần người quét lại QR
+      // → bắn Telegram ops alert ngay (nếu org đã cấu hình Integration telegram).
+      // dedupKey chặn lặp 30 phút. Fire-and-forget — không chặn luồng chính.
+      if (status === 'qr_pending' || status === 'auth_failed' || status === 'expired') {
+        const nickLabel = updated.displayName ?? accountId.slice(0, 8);
+        void import('../integrations/providers/telegram-bot.js')
+          .then((m) => m.sendTelegramOpsAlert(
+            updated.orgId,
+            `⚠️ *ZaloCRM* — Nick *${nickLabel}* mất phiên (${reason ?? status}).\nCần vào CRM quét lại QR để nối lại. KH của nick đang hold chờ.`,
+            `qr:${accountId}`,
+          ))
+          .catch((err) => logger.warn(`[zalo:${accountId}] telegram ops alert lỗi (bỏ qua): ${String(err)}`));
+      }
 
       // FIX CORE nick trùng — tầng 2 (Anh chốt 2026-06-12). Khi nick này connect THẬT
       // (có zaloUid), NGẮT mọi GHOST cũ cùng owner còn lửng lơ (qr_pending, chưa UID) để

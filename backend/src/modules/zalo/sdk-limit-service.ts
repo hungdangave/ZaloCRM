@@ -64,18 +64,72 @@ async function resolveOrgId(nickId: string): Promise<string | null> {
   return orgId;
 }
 
+// ── AN AN anti-lock 2026-08-13: WARM-UP số mới ────────────────────────────────
+// Số mới thêm vào hệ (record ZaloAccount mới) KHÔNG được chạy full trần ngay —
+// bơm tải dần theo tuổi nick (mục 6.4 brief). Trần hiệu lực = trần cấu hình × factor.
+//   ngày 0-2:  ×0.2   (200 tin/ngày → 40)
+//   ngày 3-6:  ×0.5
+//   ngày 7-13: ×0.8
+//   từ ngày 14: ×1.0 (full)
+// Tắt bằng env ZALO_WARMUP_DISABLED=1 (chỉ nên khi migrate số cũ đã chạy lâu ở nơi khác).
+const WARMUP_STEPS: Array<{ maxAgeDays: number; factor: number }> = [
+  { maxAgeDays: 3, factor: 0.2 },
+  { maxAgeDays: 7, factor: 0.5 },
+  { maxAgeDays: 14, factor: 0.8 },
+];
+
+const warmupCache = new Map<string, { createdAt: Date | null; expiresAt: number }>();
+const WARMUP_CACHE_TTL_MS = 5 * 60_000;
+
+async function getNickCreatedAt(nickId: string): Promise<Date | null> {
+  const hit = warmupCache.get(nickId);
+  if (hit && hit.expiresAt > Date.now()) return hit.createdAt;
+  let createdAt: Date | null = null;
+  try {
+    const nick = await prisma.zaloAccount.findUnique({ where: { id: nickId }, select: { createdAt: true } });
+    createdAt = nick?.createdAt ?? null;
+  } catch (err) {
+    logger.warn(`[sdk-limit] getNickCreatedAt failed nick=${nickId}:`, err);
+  }
+  warmupCache.set(nickId, { createdAt, expiresAt: Date.now() + WARMUP_CACHE_TTL_MS });
+  return createdAt;
+}
+
+/** Hệ số warm-up hiện tại của nick (1 = full trần). Public cho dashboard/UI đọc. */
+export async function getWarmupFactor(nickId: string): Promise<number> {
+  if (process.env.ZALO_WARMUP_DISABLED === '1') return 1;
+  const createdAt = await getNickCreatedAt(nickId);
+  if (!createdAt) return 1; // không rõ tuổi → không phạt (fail-open như limiter)
+  const ageDays = (Date.now() - createdAt.getTime()) / 86_400_000;
+  for (const step of WARMUP_STEPS) {
+    if (ageDays < step.maxAgeDays) return step.factor;
+  }
+  return 1;
+}
+
+function applyWarmup(limit: CategoryLimit, factor: number): CategoryLimit {
+  if (factor >= 1) return limit;
+  return {
+    daily: Math.max(1, Math.floor(limit.daily * factor)),
+    burst: Math.max(1, Math.floor(limit.burst * factor)),
+    burstWindowMs: limit.burstWindowMs,
+  };
+}
+
 /**
- * Trần hiệu lực cho 1 nick + category: nick override → org default → fallback hằng số.
+ * Trần hiệu lực cho 1 nick + category: (nick override → org default → fallback hằng số)
+ * × hệ số warm-up theo tuổi nick (AN AN anti-lock 2026-08-13).
  */
 export async function getEffectiveLimit(nickId: string, category: OpCategory): Promise<CategoryLimit> {
   const fallback = DEFAULT_SDK_LIMITS[category] ?? DEFAULT_SDK_LIMITS.message;
+  const warmupFactor = await getWarmupFactor(nickId);
   try {
     const orgId = await resolveOrgId(nickId);
-    if (!orgId) return fallback;
+    if (!orgId) return applyWarmup(fallback, warmupFactor);
 
     const ck = cacheKey(orgId, nickId, category);
     const hit = cache.get(ck);
-    if (hit && hit.expiresAt > Date.now()) return hit.limit;
+    if (hit && hit.expiresAt > Date.now()) return applyWarmup(hit.limit, warmupFactor);
 
     // 1 query lấy cả override (nick) + default (org) cho category này.
     const rows = await prisma.sdkLimit.findMany({
@@ -93,11 +147,12 @@ export async function getEffectiveLimit(nickId: string, category: OpCategory): P
       ? { daily: chosen.dailyLimit, burst: chosen.burstLimit, burstWindowMs: chosen.burstWindowMs }
       : fallback;
 
+    // Cache trần GỐC (chưa nhân warm-up) — factor đổi theo ngày, áp lúc đọc.
     cache.set(ck, { limit, expiresAt: Date.now() + CACHE_TTL_MS });
-    return limit;
+    return applyWarmup(limit, warmupFactor);
   } catch (err) {
     logger.warn(`[sdk-limit] getEffectiveLimit failed nick=${nickId} cat=${category}:`, err);
-    return fallback;
+    return applyWarmup(fallback, warmupFactor);
   }
 }
 
