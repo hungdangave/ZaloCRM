@@ -51,6 +51,14 @@ describe('proxy-util: buildZaloNetworkOptions', () => {
 });
 
 describe('send-pacing: awaitSendTurn', () => {
+  beforeEach(() => {
+    // Mặc định: mỗi số một proxy riêng → khác nhóm IP.
+    findUniqueMock.mockReset();
+    findUniqueMock.mockImplementation((args: any) =>
+      Promise.resolve({ proxyUrl: `http://proxy-${args?.where?.id}:8000` }),
+    );
+  });
+
   it('category không nhạy (query) → trả về ngay', async () => {
     const t0 = Date.now();
     await awaitSendTurn('accQ', 'query');
@@ -65,12 +73,37 @@ describe('send-pacing: awaitSendTurn', () => {
     expect(elapsed).toBeGreaterThanOrEqual(1_400); // trừ hao timer drift
   }, 10_000);
 
-  it('2 số KHÁC nhau → song song, không chặn nhau', async () => {
+  it('2 số KHÁC proxy → song song, không chặn nhau', async () => {
     await awaitSendTurn('accB', 'message');
     const t0 = Date.now();
-    await awaitSendTurn('accC', 'message'); // số khác — lượt đầu của nó
-    expect(Date.now() - t0).toBeLessThan(100);
+    await awaitSendTurn('accC', 'message'); // proxy khác → nhóm khác, lượt đầu của nó
+    expect(Date.now() - t0).toBeLessThan(300);
   });
+
+  // ── Lớp nhóm-IP (CEO chốt 4 số/proxy 13/08) ──
+  it('2 số CHUNG proxy → số thứ 2 phải chờ (tổng tải/IP giữ mức người thật)', async () => {
+    findUniqueMock.mockResolvedValue({ proxyUrl: 'http://proxy-chung:8000' });
+    await awaitSendTurn('shareA', 'message'); // lượt đầu của nhóm
+    const t0 = Date.now();
+    await awaitSendTurn('shareB', 'message'); // số KHÁC nhưng CÙNG IP → phải chờ nhóm
+    expect(Date.now() - t0).toBeGreaterThanOrEqual(1_400);
+  }, 10_000);
+
+  it('các số KHÔNG proxy cũng chung nhóm "direct" (cùng dùng IP server)', async () => {
+    findUniqueMock.mockResolvedValue({ proxyUrl: null });
+    await awaitSendTurn('directA', 'message');
+    const t0 = Date.now();
+    await awaitSendTurn('directB', 'message');
+    expect(Date.now() - t0).toBeGreaterThanOrEqual(1_400);
+  }, 10_000);
+
+  it('tra proxy lỗi → số đó đứng nhóm RIÊNG (không nới lỏng cho ai)', async () => {
+    findUniqueMock.mockRejectedValue(new Error('DB down'));
+    await awaitSendTurn('errA', 'message');
+    const t0 = Date.now();
+    await awaitSendTurn('errB', 'message'); // nhóm riêng theo accountId → không chờ nhóm
+    expect(Date.now() - t0).toBeLessThan(300);
+  }, 10_000);
 });
 
 describe('sdk-limit-service: warm-up số mới', () => {
