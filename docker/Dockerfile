@@ -2,7 +2,18 @@
 FROM node:20-alpine AS frontend-builder
 WORKDIR /app/frontend
 COPY frontend/package.json frontend/package-lock.json ./
-RUN npm ci --legacy-peer-deps
+# AN AN 14/08/2026 — vá lỗi build thầm lặng trên VPS 1 nhân:
+# `npm ci` dính bug npm "Exit handler never called!" → nó CRASH giữa chừng nhưng vẫn
+# TRẢ MÃ 0, nên Docker tưởng thành công và CACHE luôn tầng hỏng. Hệ quả: node_modules
+# cài dở, tới `npm run build` mới chết vì "vue-tsc: not found" — sai chỗ, khó lần ra.
+# Cách vá: bỏ qua mã thoát của npm, rồi TỰ KIỂM có đúng binary không; thiếu thì cài lại
+# bằng `npm install`; vẫn thiếu thì DỪNG HẲN. Hỏng phải hỏng to, không được im lặng.
+RUN npm ci --legacy-peer-deps --no-audit --no-fund || true; \
+    if [ ! -x node_modules/.bin/vue-tsc ]; then \
+      echo "[anan] npm ci hong (bug Exit-handler) → cai lai bang npm install"; \
+      npm install --legacy-peer-deps --no-audit --no-fund; \
+    fi; \
+    test -x node_modules/.bin/vue-tsc || { echo "[anan] VAN THIEU vue-tsc → dung build"; exit 1; }
 COPY frontend/ ./
 RUN npm run build
 
