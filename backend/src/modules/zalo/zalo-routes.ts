@@ -199,8 +199,9 @@ export async function zaloRoutes(app: FastifyInstance): Promise<void> {
             + 'đăng nhập khi chưa có proxy sẽ khiến nick chạy bằng IP máy chủ.',
         });
       }
-      // Fire-and-forget — QR delivered via Socket.IO
-      zaloPool.loginQR(id, account.proxyUrl).catch(() => {
+      // Fire-and-forget — QR delivered via Socket.IO.
+      // Vẫn dùng `?.` vì nhánh ZALO_ALLOW_NO_PROXY=1 cho phép đi tiếp khi account/proxy rỗng.
+      zaloPool.loginQR(id, account?.proxyUrl ?? null).catch(() => {
         // errors are emitted via socket; no need to crash here
       });
 
