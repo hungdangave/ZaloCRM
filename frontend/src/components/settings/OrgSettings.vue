@@ -86,7 +86,7 @@
       <v-text-field
         v-model="copyright"
         label="Copyright"
-        placeholder="© 2026 HS Holding"
+        placeholder="© 2026 AVE Factory"
         :disabled="!authStore.isOwner || saving"
         variant="outlined"
         class="mb-3"
@@ -126,7 +126,7 @@
       <div class="text-subtitle-2 mb-2">Xem trước giao diện mô phỏng trang đăng nhập với cấu hình hiện tại</div>
       <LoginPreview
         :logo-url="logoUrl"
-        :name="orgName || 'HS Holding'"
+        :name="orgName || 'AVE Factory CRM'"
         :slogan="slogan"
         :copyright="copyright"
         :email-placeholder="previewEmailPlaceholder"

@@ -29,9 +29,9 @@ import { prisma } from '../../shared/database/prisma-client.js';
 // trên LoginView để trải nghiệm nhất quán dù endpoint trả defaults.
 const DEFAULTS = {
   logoUrl: null as string | null,
-  name: 'HS Holding',
+  name: 'AVE Factory CRM',
   slogan: 'Bền vững · Trường tồn',
-  copyright: `© ${new Date().getFullYear()} HS Holding`,
+  copyright: `© ${new Date().getFullYear()} AVE Factory`,
   emailDomain: null as string | null,
 };
 

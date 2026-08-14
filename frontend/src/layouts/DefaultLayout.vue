@@ -247,7 +247,7 @@ function dismissInternalContactBanner() {
 // Brand lockup trên menu — logo + tên tổ chức (đồng bộ /login, /setup-password).
 const DEFAULT_LOGO = '/brand/hs-monogram.png';
 const brandLogo = ref(DEFAULT_LOGO);
-const brandName = ref('HS Holding');
+const brandName = ref('AVE Factory CRM');
 function onLogoError() {
   if (brandLogo.value !== DEFAULT_LOGO) brandLogo.value = DEFAULT_LOGO;
 }
@@ -264,7 +264,7 @@ onMounted(() => {
     .then((b) => {
       if (!b) return;
       brandLogo.value = b.logoUrl || DEFAULT_LOGO;
-      brandName.value = b.name || 'HS Holding';
+      brandName.value = b.name || 'AVE Factory CRM';
     })
     .catch(() => {});
 });
