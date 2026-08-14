@@ -186,8 +186,21 @@ export async function zaloRoutes(app: FastifyInstance): Promise<void> {
         where: { id },
         select: { proxyUrl: true },
       });
+      // ── AN AN 14/08/2026: CHỐT CHẶN "ĐĂNG NHẬP KHI CHƯA GẮN PROXY" ──
+      // Wizard thêm nick tạo record với proxy TRỐNG rồi quét QR NGAY → nick đăng nhập và
+      // chạy bằng IP máy chủ, chỉ đổi khi nào reconnect. Với 36 nick thì thành "36 tài khoản
+      // Zalo cùng một IP trung tâm dữ liệu" — đúng thảm hoạ mà cả dự án đi tránh.
+      // Chặn ở đây thay vì trông vào việc con người nhớ đúng thứ tự thao tác.
+      // Cần thử nghiệm không proxy: đặt ZALO_ALLOW_NO_PROXY=1.
+      if (!account?.proxyUrl && process.env.ZALO_ALLOW_NO_PROXY !== '1') {
+        return reply.code(400).send({
+          error: 'no_proxy_configured',
+          message: 'Nick này chưa gắn proxy. Hãy gắn proxy trước rồi mới quét QR — '
+            + 'đăng nhập khi chưa có proxy sẽ khiến nick chạy bằng IP máy chủ.',
+        });
+      }
       // Fire-and-forget — QR delivered via Socket.IO
-      zaloPool.loginQR(id, account?.proxyUrl ?? null).catch(() => {
+      zaloPool.loginQR(id, account.proxyUrl).catch(() => {
         // errors are emitted via socket; no need to crash here
       });
 

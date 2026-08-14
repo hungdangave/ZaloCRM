@@ -89,9 +89,16 @@ export function startZaloHealthCheck(): void {
   // (archivedAt). T4b (2026-06-20): đổi ngưỡng 15 phút → 24h — nick-ma phải HIỆN 24h ở UI
   // (badge "Đang chờ quét QR") trước khi ẩn, tránh biến mất giữa lúc sale quét QR dở.
   // Logic + điều kiện an toàn nằm trong zaloPool.cleanupStaleGhosts.
+  //
+  // AN AN 14/08/2026 — cho CHỈNH ngưỡng bằng env `ZALO_GHOST_TTL_HOURS`.
+  // Vì sao: khi đưa cả đội lên hệ (36 số, quét QR rải nhiều ngày theo lịch chống khoá),
+  // ta muốn TẠO SẴN toàn bộ số kèm proxy ngay từ đầu để nhân viên chỉ việc tìm và quét.
+  // Với ngưỡng cứng 24h thì số nào chưa tới lượt quét sẽ bị ẩn mất khỏi danh sách.
+  // Đặt ZALO_GHOST_TTL_HOURS=360 (15 ngày) trong giai đoạn onboarding, xong thì bỏ đi.
+  const ghostTtlHours = Number(process.env.ZALO_GHOST_TTL_HOURS) || 24;
   cron.schedule('0 * * * *', async () => {
     try {
-      const n = await zaloPool.cleanupStaleGhosts(24 * 60);
+      const n = await zaloPool.cleanupStaleGhosts(ghostTtlHours * 60);
       if (n > 0) logger.info(`[health-check] dọn ${n} thẻ ma qr_pending cũ`);
     } catch (err) {
       logger.error('[health-check] Error during stale-ghost cleanup:', err);
