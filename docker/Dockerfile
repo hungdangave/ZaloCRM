@@ -27,9 +27,16 @@ COPY backend/package.json backend/package-lock.json ./
 # Dùng `npm install` thay `npm ci` vì lock file đôi khi out of sync với package.json
 # (vd: thêm package mới qua npm install --no-save trong dev). Tradeoff: build chậm hơn ~10s
 # nhưng KHÔNG fail nếu lock drift. Tooling cần regenerate lock sau khi add dep.
-RUN npm install --no-audit --no-fund
+# AN AN 14/08/2026: thêm retry — máy 1 nhân vừa build vừa tải gói dễ đứt giữa chừng.
+RUN npm install --no-audit --no-fund --fetch-retries=5 --fetch-retry-maxtimeout=120000
+# Tự kiểm giống stage frontend: npm có thể "thành công" mà thiếu binary.
+RUN test -x node_modules/.bin/prisma || { echo "[anan] thieu prisma sau npm install"; exit 1; }
 COPY backend/ ./
-RUN DATABASE_URL="postgresql://build:build@localhost:5432/build" npx prisma generate
+# AN AN 14/08/2026: dùng THẲNG binary trong node_modules thay cho `npx prisma`.
+# `npx` khi không chắc chắn sẽ đi HỎI MẠNG npmjs.org — trên VPS 1 nhân đang gồng build,
+# nó hết giờ (ETIMEDOUT) và giết cả lần build, dù prisma đã nằm sẵn trong máy.
+# Gọi thẳng binary = 0 phụ thuộc mạng ở bước này.
+RUN DATABASE_URL="postgresql://build:build@localhost:5432/build" ./node_modules/.bin/prisma generate
 RUN npm run build
 
 # ── Stage 3: Production image ────────────────────────────────────────────────
