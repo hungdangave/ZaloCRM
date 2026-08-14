@@ -1,5 +1,10 @@
+# AN AN 14/08/2026 — NÂNG node:20 → node:22 cho CẢ 3 stage. Hai lý do độc lập:
+#  1. npm 10.8.2 (đi kèm Node 20) dính bug "Exit handler never called!" — cài dở dang
+#     mà vẫn trả mã 0. Đã thử CẢ `npm ci` LẪN `npm install`, hỏng y hệt cả hai → không
+#     phải trục trặc nhất thời. Node 22 mang npm mới hơn, hết bug này.
+#  2. `firebase-admin@14` khai báo cần node >=22; chạy trên Node 20 là mời rủi ro lúc chạy.
 # ── Stage 1: Build frontend ──────────────────────────────────────────────────
-FROM node:20-alpine AS frontend-builder
+FROM node:22-alpine AS frontend-builder
 WORKDIR /app/frontend
 COPY frontend/package.json frontend/package-lock.json ./
 # AN AN 14/08/2026 — vá lỗi build thầm lặng trên VPS 1 nhân:
@@ -18,7 +23,7 @@ COPY frontend/ ./
 RUN npm run build
 
 # ── Stage 2: Build backend ───────────────────────────────────────────────────
-FROM node:20-alpine AS backend-builder
+FROM node:22-alpine AS backend-builder
 WORKDIR /app/backend
 # sharp (nén ảnh + watermark Media): trên alpine/musl cần libvips. Cài vips-dev + build tools
 # để sharp có thể build từ source nếu prebuild musl không tải được (mạng/registry chặn).
@@ -40,7 +45,7 @@ RUN DATABASE_URL="postgresql://build:build@localhost:5432/build" ./node_modules/
 RUN npm run build
 
 # ── Stage 3: Production image ────────────────────────────────────────────────
-FROM node:20-alpine
+FROM node:22-alpine
 # tzdata = zoneinfo data cho Asia/Ho_Chi_Minh (memory feedback_timezone_vietnam.md).
 # Trước đây alpine không có → Node process fallback UTC → log + new Date() lệch 7h vs giờ VN.
 # vips = thư viện nền runtime cho sharp (nén ảnh + watermark Media). THIẾU vips → sharp
