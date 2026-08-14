@@ -17,14 +17,20 @@ COPY frontend/package.json frontend/package-lock.json ./
 # cài dở, tới `npm run build` mới chết vì "vue-tsc: not found" — sai chỗ, khó lần ra.
 # Cách vá: bỏ qua mã thoát của npm, rồi TỰ KIỂM có đúng binary không; thiếu thì cài lại
 # bằng `npm install`; vẫn thiếu thì DỪNG HẲN. Hỏng phải hỏng to, không được im lặng.
-RUN npm ci --legacy-peer-deps --no-audit --no-fund \
+# --mount=type=cache: BỘ ĐỆM GÓI TIN DÙNG CHUNG GIỮA CÁC LẦN BUILD (AN AN 14/08).
+# Mạng VPS này không tải nổi ~500 gói trong một lần (hết giờ hàng loạt, đã thử maxsockets=3,
+# --network=host, Node 20/22 — hỏng hết). Nhưng mỗi lần thử vẫn tải được một PHẦN.
+# Bộ đệm giữ lại phần đó → lần sau chỉ tải phần còn thiếu → cứ chạy lại vài lượt là đủ.
+# Biến "một cú tải khổng lồ phải thành công" thành "nhiều cú nhỏ tích luỹ dần".
+RUN --mount=type=cache,target=/root/.npm,sharing=locked \
+    npm ci --legacy-peer-deps --no-audit --no-fund \
       --maxsockets=3 --fetch-timeout=600000 --fetch-retries=5 || true; \
     if [ ! -x node_modules/.bin/vue-tsc ]; then \
-      echo "[anan] npm ci hong → cai lai bang npm install"; \
+      echo "[anan] npm ci chua xong → thu tiep bang npm install (dung lai bo dem)"; \
       npm install --legacy-peer-deps --no-audit --no-fund \
-        --maxsockets=3 --fetch-timeout=600000 --fetch-retries=5; \
+        --maxsockets=3 --fetch-timeout=600000 --fetch-retries=5 || true; \
     fi; \
-    test -x node_modules/.bin/vue-tsc || { echo "[anan] VAN THIEU vue-tsc → dung build"; exit 1; }
+    test -x node_modules/.bin/vue-tsc || { echo "[anan] VAN THIEU vue-tsc → chay lai build de tai tiep"; exit 1; }
 COPY frontend/ ./
 RUN npm run build
 
@@ -40,10 +46,11 @@ COPY backend/package.json backend/package-lock.json ./
 # nhưng KHÔNG fail nếu lock drift. Tooling cần regenerate lock sau khi add dep.
 # AN AN 14/08/2026: --maxsockets=3 (xem giải thích đầu file) + retry. Máy 1 nhân không
 # kham nổi hàng chục kết nối song song của npm → phải hạ số kết nối, không phải tăng timeout.
-RUN npm install --no-audit --no-fund \
-      --maxsockets=3 --fetch-timeout=600000 --fetch-retries=5
+RUN --mount=type=cache,target=/root/.npm,sharing=locked \
+    npm install --no-audit --no-fund \
+      --maxsockets=3 --fetch-timeout=600000 --fetch-retries=5 || true
 # Tự kiểm giống stage frontend: npm có thể "thành công" mà thiếu binary.
-RUN test -x node_modules/.bin/prisma || { echo "[anan] thieu prisma sau npm install"; exit 1; }
+RUN test -x node_modules/.bin/prisma || { echo "[anan] thieu prisma → chay lai build de tai tiep"; exit 1; }
 COPY backend/ ./
 # AN AN 14/08/2026: dùng THẲNG binary trong node_modules thay cho `npx prisma`.
 # `npx` khi không chắc chắn sẽ đi HỎI MẠNG npmjs.org — trên VPS 1 nhân đang gồng build,
