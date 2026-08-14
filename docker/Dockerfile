@@ -52,11 +52,20 @@ RUN --mount=type=cache,target=/root/.npm,sharing=locked \
 # Tự kiểm giống stage frontend: npm có thể "thành công" mà thiếu binary.
 RUN test -x node_modules/.bin/prisma || { echo "[anan] thieu prisma → chay lai build de tai tiep"; exit 1; }
 COPY backend/ ./
-# AN AN 14/08/2026: dùng THẲNG binary trong node_modules thay cho `npx prisma`.
-# `npx` khi không chắc chắn sẽ đi HỎI MẠNG npmjs.org — trên VPS 1 nhân đang gồng build,
-# nó hết giờ (ETIMEDOUT) và giết cả lần build, dù prisma đã nằm sẵn trong máy.
-# Gọi thẳng binary = 0 phụ thuộc mạng ở bước này.
-RUN DATABASE_URL="postgresql://build:build@localhost:5432/build" ./node_modules/.bin/prisma generate
+# AN AN 14/08/2026 — MÁY NHỊ PHÂN PRISMA TẢI SẴN (tuỳ chọn, cho máy chủ mạng kém).
+# Node BÊN TRONG BuildKit không ra được internet trên VPS này (fetch failed sau 1,1s),
+# trong khi chính máy chủ và `docker run` tải file 22MB đó hết 2,7s. Đã loại trừ:
+# MTU, IPv6, --network=host, số kết nối song song. Nên thôi dò, đi vòng:
+#   tải sẵn trên máy chủ  →  docker/prisma-engines/  →  COPY vào ảnh  →  prisma khỏi tải.
+# Lấy file: xem docker/prisma-engines/README.md. Không có file cũng build được bình thường
+# (ở nơi mạng tốt), vì bước dưới chỉ đặt biến môi trường KHI có file.
+COPY docker/prisma-engines/ /opt/prisma-engines/
+RUN if [ -x /opt/prisma-engines/schema-engine ]; then \
+      echo "[anan] dung schema-engine tai san, khong tai qua mang"; \
+      export PRISMA_SCHEMA_ENGINE_BINARY=/opt/prisma-engines/schema-engine; \
+    fi; \
+    export CHECKPOINT_DISABLE=1; \
+    DATABASE_URL="postgresql://build:build@localhost:5432/build" ./node_modules/.bin/prisma generate
 RUN npm run build
 
 # ── Stage 3: Production image ────────────────────────────────────────────────
