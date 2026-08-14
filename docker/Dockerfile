@@ -1,8 +1,12 @@
-# AN AN 14/08/2026 — NÂNG node:20 → node:22 cho CẢ 3 stage. Hai lý do độc lập:
-#  1. npm 10.8.2 (đi kèm Node 20) dính bug "Exit handler never called!" — cài dở dang
-#     mà vẫn trả mã 0. Đã thử CẢ `npm ci` LẪN `npm install`, hỏng y hệt cả hai → không
-#     phải trục trặc nhất thời. Node 22 mang npm mới hơn, hết bug này.
-#  2. `firebase-admin@14` khai báo cần node >=22; chạy trên Node 20 là mời rủi ro lúc chạy.
+# AN AN 14/08/2026 — node:22 (nâng từ node:20) vì `firebase-admin@14` khai báo cần node>=22.
+#
+# ⚠️ ĐÍNH CHÍNH: ban đầu tôi tưởng nâng Node sẽ chữa lỗi "Exit handler never called!" — SAI.
+# Node 22 vẫn hỏng y hệt. Nguyên nhân THẬT tìm được từ nhật ký gỡ lỗi của npm: hàng trăm dòng
+# `http fetch ... attempt 3 failed with ETIMEDOUT`. Tải MỘT file trong container mất 3s (nhanh),
+# nhưng npm mở HÀNG CHỤC kết nối song song thì VPS 1 nhân không kham nổi → rơi hàng loạt →
+# npm chết ở bước tạo liên kết lệnh và báo bằng thông điệp vô nghĩa "Exit handler never called!".
+# Đã kiểm chứng: `--maxsockets=3` → cài 746 gói trong 2 phút, đủ binary. Xem các dòng RUN npm bên dưới.
+# (MTU đã loại trừ: máy chủ và docker0 đều 1500.)
 # ── Stage 1: Build frontend ──────────────────────────────────────────────────
 FROM node:22-alpine AS frontend-builder
 WORKDIR /app/frontend
@@ -13,10 +17,12 @@ COPY frontend/package.json frontend/package-lock.json ./
 # cài dở, tới `npm run build` mới chết vì "vue-tsc: not found" — sai chỗ, khó lần ra.
 # Cách vá: bỏ qua mã thoát của npm, rồi TỰ KIỂM có đúng binary không; thiếu thì cài lại
 # bằng `npm install`; vẫn thiếu thì DỪNG HẲN. Hỏng phải hỏng to, không được im lặng.
-RUN npm ci --legacy-peer-deps --no-audit --no-fund || true; \
+RUN npm ci --legacy-peer-deps --no-audit --no-fund \
+      --maxsockets=3 --fetch-timeout=600000 --fetch-retries=5 || true; \
     if [ ! -x node_modules/.bin/vue-tsc ]; then \
-      echo "[anan] npm ci hong (bug Exit-handler) → cai lai bang npm install"; \
-      npm install --legacy-peer-deps --no-audit --no-fund; \
+      echo "[anan] npm ci hong → cai lai bang npm install"; \
+      npm install --legacy-peer-deps --no-audit --no-fund \
+        --maxsockets=3 --fetch-timeout=600000 --fetch-retries=5; \
     fi; \
     test -x node_modules/.bin/vue-tsc || { echo "[anan] VAN THIEU vue-tsc → dung build"; exit 1; }
 COPY frontend/ ./
@@ -32,8 +38,10 @@ COPY backend/package.json backend/package-lock.json ./
 # Dùng `npm install` thay `npm ci` vì lock file đôi khi out of sync với package.json
 # (vd: thêm package mới qua npm install --no-save trong dev). Tradeoff: build chậm hơn ~10s
 # nhưng KHÔNG fail nếu lock drift. Tooling cần regenerate lock sau khi add dep.
-# AN AN 14/08/2026: thêm retry — máy 1 nhân vừa build vừa tải gói dễ đứt giữa chừng.
-RUN npm install --no-audit --no-fund --fetch-retries=5 --fetch-retry-maxtimeout=120000
+# AN AN 14/08/2026: --maxsockets=3 (xem giải thích đầu file) + retry. Máy 1 nhân không
+# kham nổi hàng chục kết nối song song của npm → phải hạ số kết nối, không phải tăng timeout.
+RUN npm install --no-audit --no-fund \
+      --maxsockets=3 --fetch-timeout=600000 --fetch-retries=5
 # Tự kiểm giống stage frontend: npm có thể "thành công" mà thiếu binary.
 RUN test -x node_modules/.bin/prisma || { echo "[anan] thieu prisma sau npm install"; exit 1; }
 COPY backend/ ./
