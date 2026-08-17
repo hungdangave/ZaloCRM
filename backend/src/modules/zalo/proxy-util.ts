@@ -69,5 +69,40 @@ export function buildZaloNetworkOptions(proxyUrl: string | null | undefined, acc
 
   logger.info(`[proxy:${accountId ?? '?'}] dùng proxy ${maskProxyUrl(trimmed)} (agent per-account, áp cho cả fetch + WebSocket)`);
   // node-fetch tôn trọng options.agent mà zca-js truyền vào từng request.
-  return { agent, polyfill: nodeFetch as unknown };
+  return { agent, polyfill: fetchGiuCookie as unknown };
+}
+
+/**
+ * node-fetch KÈM `getSetCookie()` — vá lỗi ĐĂNG NHẬP QR (AN AN 16/08/2026).
+ *
+ * BỆNH: sau khi ta đổi sang node-fetch (bắt buộc, vì fetch gốc bỏ qua `options.agent`
+ * nên không đi proxy được), mọi lần quét QR đều chết ở bước cuối với `Can't login`.
+ * Quét ✅ xác nhận trên máy ✅ nhưng `getUserInfo` trả `logged: false`.
+ *
+ * GỐC RỄ: zca-js đọc cookie bằng
+ *     if (typeof response.headers.getSetCookie === "function") { ... } else { split(", ") }
+ * `Headers` của node-fetch 3.3.2 KHÔNG có `getSetCookie()` (fetch gốc/undici thì CÓ),
+ * nên rơi vào nhánh dự phòng cắt chuỗi bằng dấu phẩy. Chính chú thích trong zca-js cảnh báo:
+ * cách đó làm vỡ cookie chứa ngày hết hạn (`Expires=Wed, 18 Mar 2026...`) → **mất `zpsid`
+ * và `zpw_sek`**, đúng 2 cookie quyết định phiên đăng nhập QR.
+ *
+ * CÁCH VÁ: bọc node-fetch, gắn thêm `getSetCookie()` lấy từ `headers.raw()['set-cookie']`
+ * (node-fetch giữ nguyên MẢNG set-cookie ở đó, không hề mất mát). zca-js thấy hàm này thì
+ * đi nhánh đúng, cookie nguyên vẹn.
+ *
+ * Bài học: đổi tầng mạng bên dưới một thư viện là đổi cả những hành vi nó ngầm dựa vào —
+ * ở đây là một hàm chỉ có trên Headers chuẩn WHATWG.
+ */
+async function fetchGiuCookie(url: unknown, init?: unknown): Promise<unknown> {
+  const res: any = await (nodeFetch as any)(url, init);
+  if (res?.headers && typeof res.headers.getSetCookie !== 'function') {
+    res.headers.getSetCookie = () => {
+      try {
+        return res.headers.raw()['set-cookie'] ?? [];
+      } catch {
+        return [];
+      }
+    };
+  }
+  return res;
 }

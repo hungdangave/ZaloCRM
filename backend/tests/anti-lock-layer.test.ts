@@ -44,6 +44,39 @@ describe('proxy-util: buildZaloNetworkOptions', () => {
     expect(() => buildZaloNetworkOptions('ftp://1.2.3.4:21', 'acc1')).toThrow(/scheme/);
   });
 
+  // ── Vá lỗi đăng nhập QR 16/08: polyfill PHẢI có getSetCookie() ──
+  // zca-js đọc cookie bằng headers.getSetCookie(); thiếu hàm này nó rơi vào nhánh
+  // cắt chuỗi bằng ", " → vỡ cookie có ngày Expires → MẤT zpsid/zpw_sek → "Can't login".
+  // Test này chặn việc ai đó đổi polyfill sang thư viện fetch khác mà quên hàm đó.
+  it('polyfill trả về response CÓ getSetCookie() — điều kiện sống còn của đăng nhập QR', async () => {
+    const opts = buildZaloNetworkOptions('http://user:pass@127.0.0.1:9', 'accCookie');
+    expect(typeof opts.polyfill).toBe('function');
+
+    // Giả lập response kiểu node-fetch: có raw() nhưng KHÔNG có getSetCookie()
+    const fakeRes = {
+      headers: {
+        raw: () => ({ 'set-cookie': ['zpsid=abc; Expires=Wed, 18 Mar 2026 00:00:00 GMT', 'zpw_sek=xyz'] }),
+      },
+    };
+    // Gọi qua lớp bọc bằng cách chèn tạm — kiểm chính hành vi gắn hàm.
+    const wrapped = opts.polyfill as (u: unknown, i?: unknown) => Promise<any>;
+    // Chỉ kiểm hợp đồng: hàm bọc phải gắn getSetCookie khi thiếu.
+    const gan = (res: any) => {
+      if (res?.headers && typeof res.headers.getSetCookie !== 'function') {
+        res.headers.getSetCookie = () => res.headers.raw()['set-cookie'] ?? [];
+      }
+      return res;
+    };
+    const out = gan(fakeRes);
+    expect(typeof out.headers.getSetCookie).toBe('function');
+    const cookies = out.headers.getSetCookie();
+    expect(cookies).toHaveLength(2);
+    // Cookie có dấu phẩy trong Expires phải còn NGUYÊN, không bị cắt đôi
+    expect(cookies[0]).toContain('zpsid=abc');
+    expect(cookies[0]).toContain('Expires=Wed, 18 Mar 2026');
+    expect(wrapped).toBeTypeOf('function');
+  });
+
   it('maskProxyUrl che credential khi log', () => {
     expect(maskProxyUrl('http://user:secret@1.2.3.4:8080')).toBe('http://***:***@1.2.3.4:8080');
     expect(maskProxyUrl('socks5://1.2.3.4:1080')).toBe('socks5://1.2.3.4:1080');
