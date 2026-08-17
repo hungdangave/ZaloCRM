@@ -122,12 +122,18 @@ describe('send-pacing: awaitSendTurn', () => {
     expect(Date.now() - t0).toBeGreaterThanOrEqual(1_400);
   }, 10_000);
 
-  it('các số KHÔNG proxy cũng chung nhóm "direct" (cùng dùng IP server)', async () => {
+  // 17/08: CEO chốt chạy THẲNG IP máy chủ (bỏ proxy) → CẢ 36 nick vào nhóm 'direct'.
+  // Nếu giữ khoảng nghỉ 1,5s như nhóm proxy thì cả hệ chỉ ~24-40 tin/phút = nghẽn cứng.
+  // Nhóm 'direct' vì thế có khoảng nghỉ RIÊNG, ngắn hơn — nhưng VẪN LÀ TRẦN THẬT,
+  // chặn cú bùng 36×40 = 1.440 tin/phút từ một IP.
+  it('nhóm "direct" vẫn bị ghìm nhịp, nhưng ngắn hơn nhóm proxy (không nghẽn cả hệ)', async () => {
     findUniqueMock.mockResolvedValue({ proxyUrl: null });
     await awaitSendTurn('directA', 'message');
     const t0 = Date.now();
     await awaitSendTurn('directB', 'message');
-    expect(Date.now() - t0).toBeGreaterThanOrEqual(1_400);
+    const cho = Date.now() - t0;
+    expect(cho).toBeGreaterThan(150);    // VẪN có trần — không phải thả cửa
+    expect(cho).toBeLessThan(1_200);     // nhưng KHÔNG dùng khoảng nghỉ 1,5s của nhóm proxy
   }, 10_000);
 
   it('tra proxy lỗi → số đó đứng nhóm RIÊNG (không nới lỏng cho ai)', async () => {

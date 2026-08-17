@@ -48,6 +48,16 @@ const PACE_RULES: Partial<Record<OpCategory, PaceRule>> = {
 const GROUP_GAP_MS = envInt('ZALO_PACE_GROUP_MIN', 1_500);
 const GROUP_JITTER_MS = envInt('ZALO_PACE_GROUP_JITTER', 1_500);
 
+// ── Nhóm 'direct' (chạy thẳng IP máy chủ, không proxy) — AN AN 17/08/2026 ──
+// CEO chốt phương án A: bỏ proxy, chạy thẳng IP VPS (giống cách Salework vận hành).
+// Khi đó TOÀN BỘ 36 nick rơi vào cùng nhóm 'direct'. Nếu dùng chung khoảng nghỉ 1,5s như
+// nhóm proxy thì cả 36 nick xếp CHUNG MỘT hàng đợi → tổng cả hệ chỉ ~24-40 tin/phút = nghẽn cứng.
+// Đặt riêng khoảng nghỉ ngắn hơn cho nhóm này: ~300ms+jitter → trần ~100-200 tin/phút cho CẢ hệ.
+// Vẫn là TRẦN THẬT (chặn cú bùng 36×40=1.440 tin/phút từ một IP), nhưng cao gấp ~10 lần
+// nhu cầu thực (36 nick × 200 tin/ngày ÷ 10 giờ ≈ 12 tin/phút trung bình).
+const DIRECT_GAP_MS = envInt('ZALO_PACE_DIRECT_MIN', 300);
+const DIRECT_JITTER_MS = envInt('ZALO_PACE_DIRECT_JITTER', 300);
+
 // Chuỗi serialize per (nhóm-IP, category). Không cần dọn — key nhỏ (≤30 số × 3 loại).
 const chains = new Map<string, Promise<void>>();
 const lastDoneAt = new Map<string, number>();      // mốc gửi cuối theo account
@@ -105,7 +115,11 @@ export function awaitSendTurn(accountId: string, category: OpCategory): Promise<
     const groupTurn = prevGroup.then(async () => {
       const now = Date.now();
       const acctGap = rule.minGapMs + Math.floor(Math.random() * (rule.jitterMs + 1));
-      const groupGap = GROUP_GAP_MS + Math.floor(Math.random() * (GROUP_JITTER_MS + 1));
+      // Nhóm 'direct' dùng khoảng nghỉ riêng, ngắn hơn (xem giải thích ở DIRECT_GAP_MS).
+      const laDirect = groupKey === 'direct';
+      const gGap = laDirect ? DIRECT_GAP_MS : GROUP_GAP_MS;
+      const gJit = laDirect ? DIRECT_JITTER_MS : GROUP_JITTER_MS;
+      const groupGap = gGap + Math.floor(Math.random() * (gJit + 1));
       const waitAcct = (lastDoneAt.get(acctKey) ?? 0) + acctGap - now;
       const waitGroup = (lastGroupAt.get(groupChainKey) ?? 0) + groupGap - now;
       const waitMs = Math.max(waitAcct, waitGroup);
