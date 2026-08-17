@@ -14,6 +14,11 @@
   return this.toString();
 };
 
+// ⚠️ PHẢI đứng TRƯỚC mọi import khác: ép kết nối ra đi bằng IPv4.
+// Máy chủ không có đường ra IPv6, mà Node ưu tiên thử IPv6 trước → mọi kết nối tới
+// chat.zalo.me / wpa.chat.zalo.me treo rồi hết giờ (xem ep-ipv4.ts để rõ đầu đuôi).
+import './shared/net/ep-ipv4.js';
+
 import Fastify, { type FastifyRequest } from 'fastify';
 import cors from '@fastify/cors';
 import fastifyJwt from '@fastify/jwt';

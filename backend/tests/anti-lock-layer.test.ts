@@ -19,6 +19,8 @@ vi.mock('../src/shared/database/prisma-client.js', () => ({
 import { buildZaloNetworkOptions, maskProxyUrl } from '../src/modules/zalo/proxy-util.js';
 import { awaitSendTurn } from '../src/modules/zalo/send-pacing.js';
 import { getWarmupFactor } from '../src/modules/zalo/sdk-limit-service.js';
+import net from 'node:net';
+import { epKetNoiIPv4 } from '../src/shared/net/ep-ipv4.js';
 
 describe('proxy-util: buildZaloNetworkOptions', () => {
   it('không proxy → object rỗng (kết nối thẳng, native fetch)', () => {
@@ -182,5 +184,29 @@ describe('sdk-limit-service: warm-up số mới', () => {
     process.env.ZALO_WARMUP_DISABLED = '1';
     findUniqueMock.mockResolvedValue(nickAge(0.5));
     expect(await getWarmupFactor('nick-disabled')).toBe(1);
+  });
+});
+
+// ── Vá lỗi "Cannot get session, login failed" (AN AN 17/08/2026) ──
+// Máy chủ không có đường ra IPv6, nhưng Node ≥20 bật sẵn Happy Eyeballs nên ưu tiên thử
+// IPv6 trước → mọi kết nối tới chat.zalo.me / wpa.chat.zalo.me (có AAAA thật) treo rồi
+// hết giờ, trong khi id.zalo.me (không có AAAA thật) vẫn chạy → QR sinh được nhưng
+// lấy phiên thì hỏng. Test này khoá hành vi ép IPv4 để không ai vô tình bật lại.
+describe('ep-ipv4: ép kết nối ra đi bằng IPv4', () => {
+  beforeEach(() => {
+    delete process.env.ZALO_ALLOW_IPV6;
+    net.setDefaultAutoSelectFamily?.(true); // trả về mặc định của Node để test có ý nghĩa
+  });
+
+  it('mặc định → TẮT Happy Eyeballs (không thử IPv6 nữa)', () => {
+    expect(net.getDefaultAutoSelectFamily?.()).toBe(true); // tiền đề: đang bật
+    epKetNoiIPv4();
+    expect(net.getDefaultAutoSelectFamily?.()).toBe(false);
+  });
+
+  it('ZALO_ALLOW_IPV6=1 → giữ nguyên mặc định Node (khi máy chủ có IPv6 thật)', () => {
+    process.env.ZALO_ALLOW_IPV6 = '1';
+    epKetNoiIPv4();
+    expect(net.getDefaultAutoSelectFamily?.()).toBe(true);
   });
 });
