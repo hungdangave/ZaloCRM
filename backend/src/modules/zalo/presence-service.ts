@@ -116,11 +116,59 @@ async function refreshAccountPresence(accountId: string): Promise<{ onlineCount:
       }
     }
 
+    ghiNhanTot();
     return { onlineCount: onlines.length };
   } catch (err) {
-    // Common: account not connected (status != 'connected'). Silent fail.
+    // Thường gặp: nick chưa kết nối → im lặng. Nhưng vẫn phải đếm để cầu dao biết
+    // khi endpoint chết hẳn (Zalo trả 404 cho mọi nick).
+    ghiNhanHong();
     return null;
   }
+}
+
+/**
+ * CẦU DAO cho tính năng "chấm xanh đang online" (AN AN 17/08/2026).
+ *
+ * BỆNH ĐO ĐƯỢC: `getFriendOnlines()` bị Zalo trả **404 với MỌI nick** —
+ * endpoint này đã chết phía Zalo (zca-js chưa cập nhật). Nhưng lịch chạy vẫn gọi
+ * **mỗi nick mỗi 60 giây**: đo được **792 lỗi/giờ khi mới 15 nick**, quy ra
+ * **~2.160 lượt gọi hỏng/giờ khi đủ 36 nick**.
+ *
+ * VÌ SAO PHẢI CHẶN (không chỉ là "log ồn"):
+ *  1. Đây đúng kiểu dấu vết máy móc mà lớp chống khoá đang cố tránh — 36 nick cùng
+ *     bắn một lời gọi hỏng, đều tăm tắp mỗi phút, không người dùng thật nào như vậy.
+ *  2. Ăn hạn mức thao tác/ngày của SDK cho một tính năng KHÔNG chạy được.
+ *  3. Ăn CPU + rác nhật ký, che mất lỗi thật.
+ *
+ * CÁCH: hỏng liên tiếp quá ngưỡng → NGẮT hẳn, ghi log MỘT lần. Có kết quả tốt trở
+ * lại thì tự đóng cầu dao (phòng khi Zalo bật lại endpoint / zca-js cập nhật).
+ * Tắt tay bằng ZALO_PRESENCE_DISABLED=1.
+ *
+ * Mất gì: chỉ mất chấm xanh "đang online" trên giao diện. Không ảnh hưởng nhắn tin,
+ * đồng bộ bạn bè hay hội thoại.
+ */
+const NGUONG_HONG_LIEN_TIEP = 5;
+let soHongLienTiep = 0;
+let cauDaoNgat = false;
+
+function ghiNhanHong(): void {
+  soHongLienTiep++;
+  if (!cauDaoNgat && soHongLienTiep >= NGUONG_HONG_LIEN_TIEP) {
+    cauDaoNgat = true;
+    logger.warn(
+      `[presence] NGẮT tính năng "đang online": getFriendOnlines hỏng ${soHongLienTiep} lần liên tiếp ` +
+        '(Zalo trả 404 — endpoint đã chết). Ngừng gọi để không bắn hàng nghìn lượt hỏng/giờ tới Zalo. ' +
+        'Chỉ mất chấm xanh trên giao diện; nhắn tin và đồng bộ vẫn bình thường.',
+    );
+  }
+}
+
+function ghiNhanTot(): void {
+  if (cauDaoNgat) {
+    logger.info('[presence] endpoint "đang online" sống lại — đóng cầu dao, chạy tiếp');
+    cauDaoNgat = false;
+  }
+  soHongLienTiep = 0;
 }
 
 let cronJob: cron.ScheduledTask | null = null;
@@ -128,8 +176,14 @@ let cronJob: cron.ScheduledTask | null = null;
 export function startPresenceCron(io: Server | null): void {
   ioRef = io;
 
+  if (process.env.ZALO_PRESENCE_DISABLED === '1') {
+    logger.info('[presence] ZALO_PRESENCE_DISABLED=1 → không chạy lịch "đang online"');
+    return;
+  }
+
   // Every 60s — bulk refresh all connected accounts
   cronJob = cron.schedule('*/1 * * * *', async () => {
+    if (cauDaoNgat) return; // endpoint đã chết — đừng bắn thêm lượt gọi hỏng nào nữa
     // Cross-org sweep (mọi account connected mọi org) → runSystemQuery.
     const accounts = await runSystemQuery(() =>
       prisma.zaloAccount.findMany({
