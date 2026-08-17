@@ -5,7 +5,7 @@
  * Khoá hành vi 3 lớp chống khoá: proxy per-account (build options),
  * send-pacing (giãn nhịp giống người), warm-up (hạ trần số mới).
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // Prisma mock — warm-up chỉ cần zaloAccount.findUnique trả createdAt.
 const findUniqueMock = vi.fn();
@@ -23,10 +23,14 @@ import net from 'node:net';
 import { epKetNoiIPv4 } from '../src/shared/net/ep-ipv4.js';
 
 describe('proxy-util: buildZaloNetworkOptions', () => {
-  it('không proxy → object rỗng (kết nối thẳng, native fetch)', () => {
-    expect(buildZaloNetworkOptions(null)).toEqual({});
-    expect(buildZaloNetworkOptions('')).toEqual({});
-    expect(buildZaloNetworkOptions('   ')).toEqual({});
+  // 17/08: không proxy KHÔNG còn trả về {} — vẫn phải có polyfill kèm vòng thử lại,
+  // vì đường tới chat.zalo.me thỉnh thoảng treo mà zca-js không thử lại lần nào.
+  it('không proxy → không có agent, nhưng CÓ polyfill (fetch kèm thử lại)', () => {
+    for (const v of [null, '', '   ']) {
+      const opts = buildZaloNetworkOptions(v);
+      expect(opts.agent).toBeUndefined();
+      expect(typeof opts.polyfill).toBe('function');
+    }
   });
 
   it('http proxy → có agent + polyfill (node-fetch)', () => {
@@ -209,4 +213,50 @@ describe('ep-ipv4: ép kết nối ra đi bằng IPv4', () => {
     epKetNoiIPv4();
     expect(net.getDefaultAutoSelectFamily?.()).toBe(true);
   });
+});
+
+// ── Thử lại khi kết nối rơi vào hố đen (AN AN 17/08/2026) ──
+// Đường tới chat.zalo.me thỉnh thoảng treo im lặng tới hết giờ 10s; zca-js KHÔNG thử lại,
+// nên 1 chặng treo là đổ cả lần quét QR. Polyfill phải tự thử lại — nhưng CHỈ với lỗi
+// tầng kết nối, tuyệt đối không thử lại khi máy chủ đã trả lời (tránh gửi trùng tin nhắn).
+describe('proxy-util: fetch có thử lại', () => {
+  const gocFetch = globalThis.fetch;
+  afterEach(() => { globalThis.fetch = gocFetch; });
+
+  const loiKetNoi = () => Object.assign(new TypeError('fetch failed'), {
+    cause: { code: 'UND_ERR_CONNECT_TIMEOUT' },
+  });
+
+  it('treo ở tầng kết nối → thử lại và thành công ở lần 2', async () => {
+    let lan = 0;
+    globalThis.fetch = vi.fn(async () => {
+      lan++;
+      if (lan === 1) throw loiKetNoi();
+      return { ok: true, status: 200 } as unknown as Response;
+    }) as unknown as typeof fetch;
+
+    const polyfill = buildZaloNetworkOptions(null).polyfill as (u: unknown) => Promise<any>;
+    const res = await polyfill('https://chat.zalo.me/index.html');
+    expect(res.status).toBe(200);
+    expect(lan).toBe(2);
+  }, 10_000);
+
+  it('treo cả 3 lần → mới chịu ném lỗi (không thử vô hạn)', async () => {
+    let lan = 0;
+    globalThis.fetch = vi.fn(async () => { lan++; throw loiKetNoi(); }) as unknown as typeof fetch;
+    const polyfill = buildZaloNetworkOptions(null).polyfill as (u: unknown) => Promise<any>;
+    await expect(polyfill('https://chat.zalo.me/')).rejects.toThrow();
+    expect(lan).toBe(3);
+  }, 10_000);
+
+  it('máy chủ ĐÃ trả lời rồi mới lỗi → KHÔNG thử lại (chống gửi trùng tin nhắn)', async () => {
+    let lan = 0;
+    globalThis.fetch = vi.fn(async () => {
+      lan++;
+      throw new Error('máy chủ trả 500 rồi hỏng khi đọc thân phản hồi');
+    }) as unknown as typeof fetch;
+    const polyfill = buildZaloNetworkOptions(null).polyfill as (u: unknown) => Promise<any>;
+    await expect(polyfill('https://chat.zalo.me/')).rejects.toThrow();
+    expect(lan).toBe(1);
+  }, 10_000);
 });

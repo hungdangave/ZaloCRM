@@ -82,7 +82,9 @@ export function maskProxyUrl(proxyUrl: string): string {
  *   còn hơn ÂM THẦM chạy IP thật của server (chính là rủi ro khoá cả cụm 30 số).
  */
 export function buildZaloNetworkOptions(proxyUrl: string | null | undefined, accountId?: string): ZaloNetworkOptions {
-  if (!proxyUrl || !proxyUrl.trim()) return {};
+  // Không proxy → vẫn PHẢI trả polyfill có thử-lại (xem fetchThuLai): đường mạng từ máy chủ
+  // tới chat.zalo.me thỉnh thoảng rơi vào hố đen, mà zca-js không thử lại lần nào.
+  if (!proxyUrl || !proxyUrl.trim()) return { polyfill: fetchThuLai as unknown };
 
   const trimmed = proxyUrl.trim();
   let parsed: URL;
@@ -108,6 +110,77 @@ export function buildZaloNetworkOptions(proxyUrl: string | null | undefined, acc
 }
 
 /**
+ * fetch CÓ THỬ LẠI khi kết nối rơi vào hố đen (AN AN 17/08/2026).
+ *
+ * ══ BỆNH ══
+ * Sau khi vá IPv4 (xem shared/net/ep-ipv4.ts), lỗi đăng nhập ĐỔI HÌNH DẠNG — bằng chứng
+ * bản vá đó có tác dụng — nhưng vẫn hỏng:
+ *   ConnectTimeoutError (attempted address: chat.zalo.me:443, timeout: 10000ms)
+ *
+ * ══ ĐO ĐƯỢC GÌ ══
+ * Đường mạng từ máy chủ tới Zalo về cơ bản RẤT TỐT: ping 0% mất gói, độ trễ ~1,1ms
+ * (cùng hạ tầng trong nước), bắt tay TCP trung bình ~104ms. NHƯNG **một tỉ lệ nhỏ kết nối
+ * rơi vào hố đen** — không bị từ chối, không báo lỗi, chỉ im lặng tới khi hết giờ 10 giây:
+ *   49.213.95.230 (id.zalo.me)   20/20 tốt
+ *   49.213.95.122 (chat.zalo.me) 18/20 tốt  ← 2 lần treo
+ * Ping 0% mất gói mà TCP vẫn treo → nghẽn/lọc ở tầng TCP, không phải đứt đường.
+ *
+ * ══ VÌ SAO MỘT LẦN TREO LÀM HỎNG CẢ LẦN ĐĂNG NHẬP ══
+ * `checkSession` đi qua CHUỖI CHUYỂN HƯỚNG 3-4 chặng, và **zca-js không thử lại lần nào**:
+ * chỉ cần 1 chặng treo là toàn bộ lần quét QR đổ, người dùng phải quét lại từ đầu.
+ * Với ~10% mỗi chặng, xác suất hỏng cả lượt lên tới ~30-40% — khớp với việc "lúc được lúc không".
+ *
+ * ══ VÁ ══
+ * Thử lại tối đa 3 lần, chỉ khi lỗi ở TẦNG KẾT NỐI (chưa hề nhận được phản hồi từ máy chủ).
+ * An toàn kể cả với POST: yêu cầu chưa bao giờ tới nơi thì không thể gây tác dụng phụ trùng lặp.
+ * TUYỆT ĐỐI không thử lại khi máy chủ ĐÃ trả lời (dù là lỗi 4xx/5xx) — lúc đó thử lại
+ * có thể gửi trùng tin nhắn.
+ */
+const SO_LAN_THU = 3;
+const MA_LOI_KET_NOI = new Set([
+  'UND_ERR_CONNECT_TIMEOUT', // undici: bắt tay không xong trong 10s (hố đen)
+  'ETIMEDOUT',
+  'ECONNRESET',
+  'ECONNREFUSED',
+  'EAI_AGAIN',               // DNS tạm thời không trả lời
+  'ENOTFOUND',
+  'EPIPE',
+]);
+
+function laLoiKetNoi(err: unknown): boolean {
+  const nguyenNhan = (err as { cause?: { code?: string } })?.cause;
+  const ma = nguyenNhan?.code ?? (err as { code?: string })?.code;
+  return typeof ma === 'string' && MA_LOI_KET_NOI.has(ma);
+}
+
+function nghi(ms: number): Promise<void> {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+async function thuLai<T>(goi: () => Promise<T>, nhan: string): Promise<T> {
+  let loiCuoi: unknown;
+  for (let lan = 1; lan <= SO_LAN_THU; lan++) {
+    try {
+      return await goi();
+    } catch (err) {
+      loiCuoi = err;
+      if (!laLoiKetNoi(err) || lan === SO_LAN_THU) throw err;
+      const cho = 300 * lan; // 300ms, 600ms — đủ để hố đen trôi qua, không làm người dùng chờ lâu
+      logger.warn(
+        `[net] kết nối tới ${nhan.slice(0, 60)} hỏng ở tầng kết nối (lần ${lan}/${SO_LAN_THU}), thử lại sau ${cho}ms`,
+      );
+      await nghi(cho);
+    }
+  }
+  throw loiCuoi;
+}
+
+/** fetch gốc (không proxy) + vòng thử lại. Dùng khi chạy thẳng IP máy chủ. */
+async function fetchThuLai(url: unknown, init?: unknown): Promise<unknown> {
+  return thuLai(() => fetch(url as string, init as RequestInit), String(url));
+}
+
+/**
  * node-fetch KÈM `getSetCookie()` — vá lỗi ĐĂNG NHẬP QR (AN AN 16/08/2026).
  *
  * BỆNH: sau khi ta đổi sang node-fetch (bắt buộc, vì fetch gốc bỏ qua `options.agent`
@@ -129,7 +202,8 @@ export function buildZaloNetworkOptions(proxyUrl: string | null | undefined, acc
  * ở đây là một hàm chỉ có trên Headers chuẩn WHATWG.
  */
 async function fetchGiuCookie(url: unknown, init?: unknown): Promise<unknown> {
-  const res: any = await (nodeFetch as any)(url, init);
+  // Đường qua proxy cũng có thể treo → dùng chung vòng thử lại (xem fetchThuLai).
+  const res: any = await thuLai(() => (nodeFetch as any)(url, init), String(url));
   if (res?.headers && typeof res.headers.getSetCookie !== 'function') {
     res.headers.getSetCookie = () => {
       try {
