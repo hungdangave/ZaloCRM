@@ -23,6 +23,23 @@ import { imageSize } from 'image-size';
 import { buildZaloNetworkOptions, type ZaloNetworkOptions } from './proxy-util.js';
 import { writeTransition, type ZaloStatus, type StatusReason } from './status-log-service.js';
 
+/**
+ * Bật/tắt log CHI TIẾT của thư viện zca-js (AN AN 17/08/2026).
+ *
+ * VÌ SAO CẦN: khi đăng nhập QR hỏng, zca-js nuốt lỗi gốc —
+ *   `checkSession(...).catch(logger(ctx).error)` → trả undefined → ta chỉ thấy
+ *   thông báo chung "Cannot get session, login failed", KHÔNG biết vì sao
+ *   (mất cookie? bị chặn IP? lỗi mạng? redirect lạ?).
+ * Với `logging: false` thì logger đó im lặng hoàn toàn → không cách nào chẩn đoán.
+ *
+ * Mặc định TẮT (log thư viện rất ồn). Bật tạm bằng ZALO_SDK_LOGGING=1 khi cần soi
+ * một ca đăng nhập hỏng, rồi tắt lại.
+ */
+function sdkLoggingBat(): boolean {
+  return process.env.ZALO_SDK_LOGGING === '1';
+}
+
+
 // zca-js has no reliable ESM type exports — load via CJS interop
 const require = createRequire(import.meta.url);
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -208,7 +225,7 @@ class ZaloAccountPool {
     const epoch = ++this.epochCounter;
     // (5) Bump epoch + set instance mới NGAY → mọi autoReconnect timer cũ đang chờ (30s/2min)
     //     khi fire sẽ thấy epoch lệch / status mới và bỏ qua, không ghi đè instance QR mới.
-    const zalo = new Zalo({ logging: false, selfListen: true, imageMetadataGetter, ...netOpts });
+    const zalo = new Zalo({ logging: sdkLoggingBat(), selfListen: true, imageMetadataGetter, ...netOpts });
     this.instances.set(accountId, { zalo, api: null, status: 'qr_pending', lastActivity: new Date(), epoch });
     logger.info(`[zalo:${accountId}] loginQR — fresh instance created (epoch=${epoch}), waiting for QR event…`);
 
@@ -403,7 +420,7 @@ class ZaloAccountPool {
     // → Zalo evict → 'closed' loop). stop() = ws.close(1000)+reset, an toàn.
     this.teardownExisting(accountId);
     const epoch = ++this.epochCounter;
-    const zalo = new Zalo({ logging: false, selfListen: true, imageMetadataGetter, ...netOpts });
+    const zalo = new Zalo({ logging: sdkLoggingBat(), selfListen: true, imageMetadataGetter, ...netOpts });
     this.instances.set(accountId, { zalo, api: null, status: 'connecting', lastActivity: new Date(), epoch });
 
     try {
