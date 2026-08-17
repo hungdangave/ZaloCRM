@@ -27,6 +27,41 @@ export interface ZaloNetworkOptions {
   polyfill?: unknown;   // fetch implementation
 }
 
+/**
+ * Bật GIỮ NHỊP TCP trên mọi socket do agent proxy tạo ra (AN AN 17/08/2026).
+ *
+ * BỆNH: 7 nick Zalo rớt kết nối **106 lần trong 60 phút**, mã 1006 (đứt đột ngột).
+ * Máy chủ chỉ tải 1.78/4 nhân, mạng 0% mất gói → không phải máy yếu cũng không phải mạng.
+ * Đọc nhật ký thấy quy luật cứng: mỗi phiên sống **đúng ~2 phút** rồi đứt, lặp lại chính xác
+ * trên MỌI nick, kể cả các nick đi qua cổng proxy khác nhau.
+ *
+ * GỐC RỄ: cả 9 proxy đều qua CÙNG một máy chủ cổng `ip.mproxy.vn` (chỉ khác số cổng), và
+ * cổng đó **đóng đường hầm khi không có dữ liệu ~2 phút**. Trong khi đó zca-js chỉ gửi
+ * tín hiệu giữ nhịp theo chu kỳ `settings.features.socket.ping_interval` do CHÍNH ZALO quy
+ * định (thường ~3 phút) → đường hầm chết TRƯỚC khi nhịp đầu tiên kịp gửi. Với tài khoản mới,
+ * chưa có tin nhắn nào chạy qua, WebSocket im lặng hoàn toàn → luôn chạm ngưỡng đó.
+ *
+ * VÁ: bật giữ nhịp ở TẦNG TCP — hệ điều hành tự gửi gói thăm dò mỗi 30 giây, sớm hơn ngưỡng
+ * 2 phút của proxy. Đường hầm không bao giờ bị coi là "im lặng". Cách này độc lập hoàn toàn
+ * với chu kỳ ping của zca-js/Zalo nên không sợ Zalo đổi cấu hình.
+ * Kèm `setNoDelay` để tin nhắn nhỏ đi ngay, không nằm chờ gom gói.
+ */
+function giuNhipTCP<T>(agent: T): T {
+  const goc = (agent as any).connect;
+  if (typeof goc !== 'function') return agent;
+  (agent as any).connect = async function (...args: unknown[]) {
+    const socket: any = await goc.apply(this, args);
+    try {
+      socket?.setKeepAlive?.(true, 30_000);
+      socket?.setNoDelay?.(true);
+    } catch {
+      /* socket lạ không hỗ trợ — bỏ qua, không được làm hỏng kết nối vì việc phụ này */
+    }
+    return socket;
+  };
+  return agent;
+}
+
 /** Che credential trong proxy URL khi ghi log: user:pass@host → ***@host */
 export function maskProxyUrl(proxyUrl: string): string {
   try {
@@ -60,9 +95,9 @@ export function buildZaloNetworkOptions(proxyUrl: string | null | undefined, acc
   const proto = parsed.protocol.replace(':', '').toLowerCase();
   let agent: unknown;
   if (proto === 'http' || proto === 'https') {
-    agent = new HttpsProxyAgent(trimmed);
+    agent = giuNhipTCP(new HttpsProxyAgent(trimmed));
   } else if (proto === 'socks' || proto === 'socks4' || proto === 'socks5' || proto === 'socks5h') {
-    agent = new SocksProxyAgent(trimmed);
+    agent = giuNhipTCP(new SocksProxyAgent(trimmed));
   } else {
     throw new Error(`Proxy scheme "${proto}" không hỗ trợ (account ${accountId ?? '?'}) — dùng http/https/socks5`);
   }
