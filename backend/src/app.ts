@@ -500,19 +500,41 @@ async function bootstrap() {
       where: { sessionData: { not: Prisma.JsonNull }, archivedAt: null, zaloUid: { not: null } },
       select: { id: true, sessionData: true },
     });
-    logger.info(`Attempting reconnect for ${accounts.length} Zalo account(s)`);
-    for (const account of accounts) {
-      const session = account.sessionData as {
-        cookie: any;
-        imei: string;
-        userAgent: string;
-      } | null;
-      if (session?.imei) {
+    // ── GIÃN NHỊP VÀO LẠI KHI KHỞI ĐỘNG (AN AN 18/08/2026) ──────────────────
+    // Bản cũ bắn TẤT CẢ lời đăng nhập lại trong CÙNG một khoảnh khắc (vòng lặp không
+    // await). Với 35 nick chạy CHUNG MỘT IP máy chủ, đó đúng là dấu vết máy móc mà cả
+    // lớp chống khoá đang tránh: 35 phiên Zalo mở ra cùng một giây từ một địa chỉ.
+    // Chưa kể mỗi nick vào xong lại tự đồng bộ bạn bè ngay → 35 lượt đồng bộ chồng nhau
+    // (đo được: 1 lượt tốn 7-8 giây CPU; app đã chạy 66% CPU khi mới 15 nick).
+    //
+    // Nay rải đều: mỗi nick cách nhau vài giây + nhiễu ngẫu nhiên, giống người dùng thật
+    // mở máy rải rác. 35 nick × ~4 giây ≈ 2,5 phút — không ai phải chờ, vì đây chạy nền.
+    const GIAN_NHIP_MS = Number(process.env.ZALO_BOOT_RECONNECT_GAP_MS) || 4_000;
+    logger.info(
+      `Attempting reconnect for ${accounts.length} Zalo account(s) — rải đều mỗi ~${Math.round(GIAN_NHIP_MS / 1000)}s ` +
+        `(ước tính xong sau ~${Math.ceil((accounts.length * GIAN_NHIP_MS) / 60_000)} phút)`,
+    );
+    void (async () => {
+      let thuTu = 0;
+      for (const account of accounts) {
+        const session = account.sessionData as {
+          cookie: any;
+          imei: string;
+          userAgent: string;
+        } | null;
+        if (!session?.imei) continue;
+        if (thuTu > 0) {
+          const cho = GIAN_NHIP_MS + Math.floor(Math.random() * GIAN_NHIP_MS);
+          await new Promise((r) => setTimeout(r, cho));
+        }
+        thuTu++;
+        // Vẫn fire-and-forget từng nick: một nick vào chậm không được chặn hàng đợi.
         zaloPool.reconnect(account.id, session).catch((err) => {
           logger.warn(`Auto-reconnect failed for account ${account.id}:`, err);
         });
       }
-    }
+      logger.info(`[boot-reconnect] đã phát lệnh vào lại cho ${thuTu} nick`);
+    })();
   } catch (err) {
     logger.error('Failed to load accounts for reconnect:', err);
   }
