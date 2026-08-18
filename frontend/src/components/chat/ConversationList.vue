@@ -228,7 +228,21 @@
       </TransitionGroup>
 
       <div v-if="!loading && conversations.length === 0" class="empty-state">
-        Chưa có hội thoại nào
+        <!-- 18/08: 5 bạn CSKH tưởng "chưa được cấp quyền tìm SĐT". Thật ra ô này CHỈ lọc
+             hội thoại ĐÃ CÓ trong CRM — muốn tra một số MỚI trên Zalo phải qua "Tin nhắn mới".
+             Trước đây gõ số lạ chỉ thấy "Chưa có hội thoại nào" → cụt đường. Nay chỉ lối đi tiếp. -->
+        <template v-if="laSoDienThoai">
+          <div class="empty-title">Không thấy số này trong CRM</div>
+          <button type="button" class="empty-cta" @click="onClickNewMessage">
+            🔍 Tra số "{{ (search || '').trim() }}" trên Zalo
+          </button>
+          <div class="empty-hint">Chọn nick sẽ dùng để nhắn, rồi hệ tra số trên Zalo qua nick đó.</div>
+        </template>
+        <template v-else-if="(search || '').trim()">
+          <div class="empty-title">Không có hội thoại nào khớp "{{ (search || '').trim() }}"</div>
+          <div class="empty-hint">Ô này chỉ tìm trong hội thoại đã có. Tìm khách MỚI thì bấm "Tin nhắn mới".</div>
+        </template>
+        <template v-else>Chưa có hội thoại nào</template>
       </div>
     </div>
 
@@ -385,6 +399,13 @@ const composeDefaultAccountId = computed<string | null>(() => {
   if (ids.length === 1) return ids[0];
   if (composeAccounts.value.length === 1) return composeAccounts.value[0].id;
   return null;
+});
+
+// Số điện thoại VN sau khi bỏ ký tự không phải chữ số: 9-12 chữ số
+// (cùng ngưỡng với isPhoneQuery trong NewMessageDialog — đổi thì đổi cả hai).
+const laSoDienThoai = computed(() => {
+  const digits = (props.search || '').replace(/[^\d]/g, '');
+  return digits.length >= 9 && digits.length <= 12;
 });
 
 function onClickNewMessage() {
@@ -1710,6 +1731,15 @@ function onPatternLeave() {
   text-align: center; padding: 40px 13px;
   color: var(--smax-grey-700); font-size: 12px;
 }
+.empty-state .empty-title { font-weight: 600; margin-bottom: 8px; }
+.empty-state .empty-cta {
+  display: inline-block; padding: 8px 14px; border-radius: 8px;
+  background: #1976D2; color: #fff; font-weight: 600; font-size: 13px;
+  border: none; cursor: pointer;
+}
+.empty-state .empty-cta:hover { background: #1565C0; }
+.empty-state .empty-hint { margin-top: 8px; font-size: 12px; opacity: .75; line-height: 1.5; }
+
 </style>
 
 <!-- Unscoped style cho teleport tooltip (đặt body, không reach được scoped CSS) -->
