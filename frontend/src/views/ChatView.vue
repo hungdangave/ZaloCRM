@@ -43,6 +43,9 @@
         :conversations="conversations"
         :selected-id="selectedConvId"
         :loading="loadingConvs"
+        :has-more="hasMoreConvs"
+        :loading-more="loadingMoreConvs"
+        :total="convTotal"
         :accounts="accountList"
         :selected-account-ids="selectedAccountIds"
         :active-tab-key="inboxFilters.state.activeTab"
@@ -50,6 +53,7 @@
         :following-pairs="followingPairs"
         v-model:search="searchQuery"
         @select="onSelectConv"
+        @load-more="loadMoreConversations"
         @filter-account="onFilterAccount"
         @update:filters="onFiltersUpdate"
         @conversation-moved="onConversationMoved"
@@ -167,7 +171,8 @@ const router = useRouter();
 
 const {
   conversations, selectedConvId, selectedConv, messages,
-  loadingConvs, loadingMsgs, sendingMsg, searchQuery, accountFilter, extraFilters,
+  loadingConvs, loadingMoreConvs, hasMoreConvs, convTotal, loadMoreConversations,
+  loadingMsgs, sendingMsg, searchQuery, accountFilter, extraFilters,
   aiSuggestion, aiSuggestionLoading, aiSuggestionError,
   aiSummary, aiSummaryLoading, aiSentiment, aiSentimentLoading,
   fetchConversations, fetchAiConfig, fetchMessages, selectConversation, sendMessage,

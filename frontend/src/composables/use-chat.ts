@@ -313,6 +313,21 @@ export function useChat() {
   // (giữ tin socket đến trong lúc HTTP fly).
   const messagesConvId = ref<string | null>(null);
   const loadingConvs = ref(false);
+  // ── Phân trang "Tải thêm" (AN AN 18/08/2026) ───────────────────────────────
+  // Trước đây cột 2 xin đúng 100 hội thoại rồi DỪNG — không có trang 2, không tải
+  // khi cuộn. Đo thực tế: 21.021 hội thoại, riêng 1 bạn CSKH có 8.778 → chỉ thấy 1%.
+  // Máy chủ vốn đã hỗ trợ page/limit (trần 200/trang), chỉ giao diện chưa dùng.
+  const CONV_PAGE_SIZE = 100;
+  const convPage = ref(1);
+  const convTotal = ref(0);
+  const loadingMoreConvs = ref(false);
+  /** Còn hội thoại chưa tải về không (dựa trên tổng máy chủ trả về). */
+  const hasMoreConvs = computed(() => conversations.value.length < convTotal.value);
+  // Dấu vân tay của BỘ LỌC (không tính page). Đổi bộ lọc/từ khoá → phải bỏ hết phần
+  // đã "Tải thêm" và về trang 1. Còn làm mới do socket (tin mới tới) thì KHÔNG được
+  // cắt — nếu không, sale vừa bấm Tải thêm mà khách nhắn một tin là danh sách tụt
+  // về 100, mất sạch công bấm.
+  const locLanTruoc = ref('');
   const loadingMsgs = ref(false);
   const sendingMsg = ref(false);
   // Wave 1 (2026-05-21) — KH đang gõ realtime. Key = conversationId (FE map từ
@@ -387,14 +402,23 @@ export function useChat() {
 
   const extraFilters = ref<Record<string, string>>({});
 
-  async function fetchConversations(opts?: { bypassCache?: boolean }) {
+  async function fetchConversations(opts?: { bypassCache?: boolean; page?: number }) {
+    // opts.page: chỉ "Tải thêm" mới truyền. Mọi lần gọi khác = lần đầu → về trang 1.
+    const page = opts?.page ?? 1;
     const params = {
-      limit: 100,
+      page,
+      limit: CONV_PAGE_SIZE,
       search: searchQuery.value,
       accountId: accountFilter.value || undefined,
       ...extraFilters.value,
     };
     const cacheKey = JSON.stringify(params);
+    // Vân tay bộ lọc = params BỎ page. Khác lần trước ⇒ người dùng vừa đổi bộ lọc/từ khoá.
+    const { page: _boQuaPage, ...paramsKhongPage } = params;
+    const vanTayLoc = JSON.stringify(paramsKhongPage);
+    const doiBoLoc = vanTayLoc !== locLanTruoc.value;
+    if (doiBoLoc && page === 1) convPage.value = 1;
+    locLanTruoc.value = vanTayLoc;
     const cached = opts?.bypassCache ? null : conversationsCache.get(cacheKey);
 
     // M-tier stale-while-revalidate: cache hit → paint NGAY (no spinner flash khi
@@ -422,7 +446,7 @@ export function useChat() {
       if (!opts?.bypassCache) logCacheEvent('miss', cacheKey);
       // Spinner chỉ hiện khi state thực sự rỗng (first load). bypassCache khi
       // state đã có data từ socket → không hiện spinner để tránh blink.
-      if (conversations.value.length === 0) loadingConvs.value = true;
+      if (conversations.value.length === 0 && page === 1) loadingConvs.value = true;
     }
 
     try {
@@ -430,16 +454,49 @@ export function useChat() {
       // Apply pending optimistic mutations (tag assigns chưa được BE confirm) trước khi
       // replace state — tránh fetchConversations chạy giữa lúc BE đang sync wipe UI optimistic.
       const fresh = applyPendingTags(res.data.conversations as Conversation[]);
+      convTotal.value = Number(res.data.total ?? 0);
       conversationsCache.set(cacheKey, { data: fresh, fetchedAt: Date.now() });
       logCacheEvent('set', cacheKey);
       evictOldConvCacheIfNeeded();
-      // Merge để giữ detail fields (Contact full ~50 field từ /conversations/:id)
-      // không bị wipe bởi narrow list response (14 field).
-      conversations.value = mergeConvListPreserveDetail(conversations.value, fresh, preserveIds);
+      if (page > 1) {
+        // "Tải thêm": NỐI vào cuối, khử trùng theo id. Phải khử trùng vì giữa 2 lần xin
+        // trang có thể có tin mới đẩy hội thoại nhảy bậc → cùng 1 hội thoại rơi vào cả
+        // trang trước lẫn trang sau.
+        const daCo = new Set(conversations.value.map(c => c.id));
+        const themMoi = fresh.filter(c => !daCo.has(c.id));
+        conversations.value = [...conversations.value, ...themMoi];
+        convPage.value = page;
+      } else {
+        // Merge để giữ detail fields (Contact full ~50 field từ /conversations/:id)
+        // không bị wipe bởi narrow list response (14 field).
+        const daMerge = mergeConvListPreserveDetail(conversations.value, fresh, preserveIds);
+        if (!doiBoLoc && convPage.value > 1) {
+          // Làm mới trang 1 (socket đẩy tin mới) NHƯNG người dùng đã Tải thêm:
+          // thay 100 dòng đầu bằng bản tươi, GIỮ NGUYÊN phần đuôi đã tải.
+          const idsDau = new Set(daMerge.map(c => c.id));
+          const duoi = conversations.value.filter(c => !idsDau.has(c.id));
+          conversations.value = [...daMerge, ...duoi];
+        } else {
+          conversations.value = daMerge;
+          convPage.value = 1;
+        }
+      }
     } catch (err) {
       console.error('Failed to fetch conversations:', err);
     } finally {
       loadingConvs.value = false;
+    }
+  }
+
+  /** Tải thêm 100 hội thoại kế tiếp, nối vào cuối danh sách cột 2. */
+  async function loadMoreConversations() {
+    if (loadingMoreConvs.value || !hasMoreConvs.value) return;
+    loadingMoreConvs.value = true;
+    try {
+      // bypassCache: trang sau luôn xin tươi — danh sách xê dịch liên tục theo tin mới.
+      await fetchConversations({ page: convPage.value + 1, bypassCache: true });
+    } finally {
+      loadingMoreConvs.value = false;
     }
   }
 
@@ -1179,6 +1236,10 @@ export function useChat() {
     selectedConv,
     messages,
     loadingConvs,
+    loadingMoreConvs,
+    hasMoreConvs,
+    convTotal,
+    loadMoreConversations,
     loadingMsgs,
     sendingMsg,
     searchQuery,

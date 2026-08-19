@@ -8,8 +8,12 @@
         :conversations="conversations"
         :selected-id="selectedConvId"
         :loading="loadingConvs"
+        :has-more="hasMoreConvs"
+        :loading-more="loadingMoreConvs"
+        :total="convTotal"
         v-model:search="searchQuery"
         @select="selectConversation"
+        @load-more="loadMoreConversations"
         @filter-account="onFilterAccount"
       />
     </div>
@@ -52,7 +56,8 @@ import { useOfflineQueue } from '@/composables/use-offline-queue';
 
 const {
   conversations, selectedConvId, selectedConv, messages,
-  loadingConvs, loadingMsgs, sendingMsg, searchQuery, accountFilter,
+  loadingConvs, loadingMoreConvs, hasMoreConvs, convTotal, loadMoreConversations,
+  loadingMsgs, sendingMsg, searchQuery, accountFilter,
   fetchConversations, fetchMessages, selectConversation, sendMessage, sendMessageTo,
   initSocket, destroySocket,
 } = useChat();

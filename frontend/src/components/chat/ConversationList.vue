@@ -227,6 +227,28 @@
       </div>
       </TransitionGroup>
 
+      <!-- ── "Tải thêm" (AN AN 18/08/2026) ──────────────────────────────────
+           Trước đây cột 2 dừng ở 100 hội thoại và HẾT — không cách nào lướt tiếp.
+           Đo thực tế: 21.021 hội thoại, riêng 1 bạn CSKH có 8.778 → chỉ thấy 1%.
+           Nút này xin thêm 100 mỗi lần, nối vào cuối. -->
+      <div v-if="!loading && hasMore && conversations.length > 0" class="load-more-wrap">
+        <button
+          type="button"
+          class="load-more-btn"
+          :disabled="loadingMore"
+          @click="emit('load-more')"
+        >
+          <template v-if="loadingMore">Đang tải…</template>
+          <template v-else>Tải thêm hội thoại</template>
+        </button>
+        <div v-if="total" class="load-more-count">
+          Đang hiện {{ conversations.length }} / {{ total }}
+        </div>
+      </div>
+      <div v-else-if="!loading && !hasMore && (total || 0) > 0 && conversations.length > 0" class="load-more-wrap">
+        <div class="load-more-count">Đã hiện hết {{ conversations.length }} hội thoại</div>
+      </div>
+
       <div v-if="!loading && conversations.length === 0" class="empty-state">
         <!-- 18/08: 5 bạn CSKH tưởng "chưa được cấp quyền tìm SĐT". Thật ra ô này CHỈ lọc
              hội thoại ĐÃ CÓ trong CRM — muốn tra một số MỚI trên Zalo phải qua "Tin nhắn mới".
@@ -351,6 +373,12 @@ const props = defineProps<{
     zaloUid?: string | null;
   }>;
   selectedAccountIds?: string[];
+  /** Còn hội thoại chưa tải (tổng máy chủ > số đang hiển thị) → hiện nút "Tải thêm". */
+  hasMore?: boolean;
+  /** Đang tải trang kế tiếp. */
+  loadingMore?: boolean;
+  /** Tổng số hội thoại khớp bộ lọc (máy chủ trả về) — để sale biết còn bao nhiêu. */
+  total?: number;
   /** Phase A perf (2026-05-21) — tab key (personal/group/main/other). Dùng làm
    *  :key cho TransitionGroup → tab switch tạo instance MỚI → bỏ qua FLIP
    *  animation cross-tab. Reorder trong cùng tab (tin mới đến) vẫn animate.
@@ -375,6 +403,8 @@ const emit = defineEmits<{
   'compose-opened': [conversationId: string];
   /** Theo dõi (anh chốt 2026-06-15) — toggle follow từ menu → cập nhật chuông cột 2 ngay. */
   'follow-changed': [contactId: string, nickId: string, following: boolean];
+  /** Bấm "Tải thêm" → xin trang hội thoại kế tiếp. */
+  'load-more': [];
 }>();
 
 // ── Compose new message ─────────────────────────────────────────────────────
@@ -1727,6 +1757,15 @@ function onPatternLeave() {
   top: 11px; right: 28px;
 }
 
+.load-more-wrap { padding: 12px; text-align: center; }
+.load-more-btn {
+  width: 100%; padding: 9px 12px; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--hn-border, #d5dae2); background: var(--hn-surface, #fff);
+  font-size: 13px; font-weight: 600; color: var(--hn-text, #1f2937);
+}
+.load-more-btn:hover:not(:disabled) { background: var(--hn-hover, #f1f5f9); }
+.load-more-btn:disabled { opacity: .6; cursor: default; }
+.load-more-count { margin-top: 6px; font-size: 11px; opacity: .7; }
 .empty-state {
   text-align: center; padding: 40px 13px;
   color: var(--smax-grey-700); font-size: 12px;
