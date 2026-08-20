@@ -658,7 +658,7 @@ function initials(name: string): string {
   return (parts[parts.length - 2][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 const AV_COLORS = [
-  '#1786be', '#7a4fb0', '#b0734f', '#4fb09a', '#b04f6e',
+  '#981820', '#7a4fb0', '#b0734f', '#4fb09a', '#b04f6e',
   '#5b8def', '#d39237', '#6e7a8a', '#9a6f4f', '#b04f4f',
 ];
 function avColor(name: string): string {
@@ -804,8 +804,8 @@ function deltaIcon(d: number): string {
 
 <style scoped>
 .usage-divider { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700;
-  color: var(--rk-brand-700, #0b5880); margin: 20px 0 14px; padding-top: 14px; border-top: 1px dashed var(--rk-hairline, #e6e9ef); }
-.usage-divider :deep(.v-icon) { color: var(--rk-brand, #1786be); }
+  color: var(--rk-brand-700, #631015); margin: 20px 0 14px; padding-top: 14px; border-top: 1px dashed var(--rk-hairline, #e6e9ef); }
+.usage-divider :deep(.v-icon) { color: var(--rk-brand, #981820); }
 .usage-divider-note { font-size: 12px; font-weight: 500; color: var(--rk-faint, #97a0ac); margin-left: 2px; }
 .mod-list { display: flex; flex-direction: column; gap: 11px; }
 .mod-row { display: flex; align-items: center; gap: 10px; font-size: 12.5px; }
@@ -829,7 +829,7 @@ function deltaIcon(d: number): string {
 .hh-rl { font-size: 11.5px; font-weight: 600; color: var(--rk-ink, #1f2d3d); }
 .hh-c { aspect-ratio: 1; border-radius: 3px; background: #eef1f6; }
 .hh-c.hl0 { background: #eef1f6; } .hh-c.hl1 { background: #d7ecf7; } .hh-c.hl2 { background: #9fd3ec; }
-.hh-c.hl3 { background: #4fb0e0; } .hh-c.hl4 { background: var(--rk-brand, #1786be); }
+.hh-c.hl3 { background: #4fb0e0; } .hh-c.hl4 { background: var(--rk-brand, #981820); }
 .hh-hx { font-size: 10px; color: var(--rk-faint, #97a0ac); font-weight: 600; text-align: center; }
 .hh-foot { display: flex; align-items: center; gap: 4px; margin-top: 12px; font-size: 11px; }
 .hh-foot .hh-c { width: 14px; height: 14px; aspect-ratio: auto; flex: none; }
@@ -849,7 +849,7 @@ function deltaIcon(d: number): string {
 .fn-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-bottom: 14px; font-size: 11.5px; color: var(--rk-muted, #6b7785); }
 .fn-legend span { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
 .fn-sw { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
-.fn-sw.s0 { background: var(--rk-brand-700, #0b5880); } .fn-sw.s1 { background: var(--rk-brand, #1786be); }
+.fn-sw.s0 { background: var(--rk-brand-700, #631015); } .fn-sw.s1 { background: var(--rk-brand, #981820); }
 .fn-sw.s2 { background: #4fb0e0; } .fn-sw.s3 { background: #9fd3ec; }
 .fn-list { display: flex; flex-direction: column; gap: 10px; }
 .fn-row { display: flex; align-items: center; gap: 12px; }
@@ -858,6 +858,6 @@ function deltaIcon(d: number): string {
 .fn-bars { flex: 1; display: flex; align-items: stretch; gap: 2px; height: 26px; min-width: 0; }
 .fn-seg { height: 100%; min-width: 22px; display: flex; align-items: center; justify-content: center; border-radius: 5px;
   font-size: 11px; font-weight: 700; color: #fff; overflow: hidden; white-space: nowrap; font-variant-numeric: tabular-nums; }
-.fn-seg.s0 { background: var(--rk-brand-700, #0b5880); } .fn-seg.s1 { background: var(--rk-brand, #1786be); }
-.fn-seg.s2 { background: #4fb0e0; } .fn-seg.s3 { background: #9fd3ec; color: var(--rk-brand-700, #0b5880); }
+.fn-seg.s0 { background: var(--rk-brand-700, #631015); } .fn-seg.s1 { background: var(--rk-brand, #981820); }
+.fn-seg.s2 { background: #4fb0e0; } .fn-seg.s3 { background: #9fd3ec; color: var(--rk-brand-700, #631015); }
 </style>

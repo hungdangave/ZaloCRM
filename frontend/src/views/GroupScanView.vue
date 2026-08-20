@@ -395,7 +395,7 @@ function toggleSelectAll() {
 }
 
 /* ── avatar helpers (theme-independent, deterministic) ── */
-const AVATAR_COLORS = ['#7c5cff', '#12b76a', '#f5a524', '#1786be', '#f04438', '#5bb8e5'];
+const AVATAR_COLORS = ['#7c5cff', '#12b76a', '#f5a524', '#981820', '#f04438', '#80B040'];
 function avatarColor(seed: string): string {
   let h = 0;
   for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;

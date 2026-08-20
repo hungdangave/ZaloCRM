@@ -169,7 +169,7 @@ onMounted(() => { reload(); loadUploaders(); });
   background:var(--canvas); border-radius:12px; width:680px; max-width:92vw; max-height:80vh; display:flex; flex-direction:column; overflow:hidden; }
 .mpd-head { display:flex; align-items:center; gap:10px; padding:14px 18px; border-bottom:1px solid var(--hairline); }
 .mpd-head b { color:var(--ink); }
-.mpd-hint-album { font-size:11px; color:#1786be; background:#e4f1f8; border-radius:9999px; padding:2px 9px; font-weight:600; }
+.mpd-hint-album { font-size:11px; color:#981820; background:#F7E9EA; border-radius:9999px; padding:2px 9px; font-weight:600; }
 .mpd-search { margin-left:auto; border:1px solid var(--hairline); border-radius:6px; padding:5px 10px; font-size:13px; width:160px; outline:none; }
 .mpd-x { border:none; background:none; cursor:pointer; color:var(--muted); font-size:15px; }
 .mpd-filters { display:flex; gap:7px; flex-wrap:wrap; padding:10px 18px; border-bottom:1px solid var(--hairline); background:var(--soft); }

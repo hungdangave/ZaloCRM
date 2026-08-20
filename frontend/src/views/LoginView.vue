@@ -178,7 +178,7 @@ async function handleLogin() {
 }
 .form-inner { width: 100%; max-width: 340px; }
 .form-title {
-  font-size: 24px; font-weight: 700; color: #0e445a;
+  font-size: 24px; font-weight: 700; color: #7A131A;
   margin: 0 0 4px;
 }
 .form-sub {
@@ -205,6 +205,6 @@ async function handleLogin() {
 /* Phòng hờ: ép màu chữ input đọc được trên card trắng, kể cả khi thiết bị dark-mode
    (đi cùng color-scheme:light ở style.css). */
 .login-card :deep(.v-field__input),
-.login-card :deep(input) { color: #0e445a; }
+.login-card :deep(input) { color: #7A131A; }
 .login-card :deep(.v-field__input::placeholder) { color: #94a3b0; opacity: 1; }
 </style>

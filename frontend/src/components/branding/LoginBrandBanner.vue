@@ -52,7 +52,7 @@ watch(
   justify-content: center;
   align-items: center;
   padding: 40px 32px;
-  background: linear-gradient(160deg, #0e445a 0%, #06222f 100%);
+  background: linear-gradient(160deg, #7A131A 0%, #440B0E 100%);
   color: #fff;
   overflow: hidden;
   text-align: center;
@@ -86,7 +86,7 @@ watch(
 }
 .brand-divider {
   width: 44px; height: 3px; border-radius: 2px;
-  background: linear-gradient(90deg, #1786be, #6fc5ea);
+  background: linear-gradient(90deg, #981820, #6fc5ea);
   margin: 22px 0 16px;
 }
 .brand-slogan {

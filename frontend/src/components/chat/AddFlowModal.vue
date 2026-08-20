@@ -422,7 +422,7 @@ onMounted(() => {
   background: var(--surface); font-family: inherit;
 }
 .afm-opt:last-child { margin-bottom: 0; }
-.afm-opt:hover { border-color: var(--brand-bright, #5bb8e5); background: var(--brand-softer); }
+.afm-opt:hover { border-color: var(--brand-bright, #80B040); background: var(--brand-softer); }
 .afm-opt.sel { border-color: var(--brand); background: var(--brand-soft); box-shadow: 0 0 0 1px var(--brand) inset; }
 .afm-radio {
   width: 17px; height: 17px; border-radius: 50%; border: 2px solid var(--ink-4);
@@ -454,7 +454,7 @@ onMounted(() => {
 .afm-opt-start { font-size: 10.5px; color: #157f3c; margin-top: 5px; }
 .afm-preview-btn {
   flex-shrink: 0; align-self: center; display: inline-flex; align-items: center; gap: 4px;
-  border: 1px solid var(--brand, #1786be); background: var(--surface); color: var(--brand, #1786be);
+  border: 1px solid var(--brand, #981820); background: var(--surface); color: var(--brand, #981820);
   border-radius: var(--r-sm); padding: 4px 9px; font-size: 11px; font-weight: 600; cursor: pointer;
   font-family: inherit;
 }

@@ -4,10 +4,10 @@
    ════════════════════════════════════════════════════════════ */
 :root {
   /* Brand palette — HS Holding xanh ngọc (đổi từ #2962ff, /plan-design-review 2026-06-06) */
-  --smax-primary: #1786be;
-  --smax-primary-hover: #0f6fa0;
-  --smax-primary-soft: #e4f1f8;
-  --smax-primary-700: #0b5880;
+  --smax-primary: #981820;
+  --smax-primary-hover: #7A131A;
+  --smax-primary-soft: #F7E9EA;
+  --smax-primary-700: #631015;
   --smax-success: #00c853;
   --smax-warning: #ff9100;
   --smax-info: #2196f3;

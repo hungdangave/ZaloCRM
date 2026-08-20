@@ -8,7 +8,7 @@ import * as directives from 'vuetify/directives';
 
 /**
  * Vuetify theme — REDESIGN HS Holding CRM (migration 2026-06-05).
- * `hsLight` (default) = bộ token HS (teal-navy shell + metallic blue #1786be),
+ * `hsLight` (default) = bộ token HS (teal-navy shell + metallic blue #981820),
  * mirror PART 1 của hs-crm-theme.css. `smax-light`/`legacy-dark` giữ fallback
  * cho các view chưa migrate; sẽ rút ở cụm cleanup cuối.
  */
@@ -22,20 +22,20 @@ export const vuetify = createVuetify({
       'hsLight': {
         dark: false,
         colors: {
-          primary: '#1786be',          // --brand
-          'primary-darken-1': '#0f6fa0',
-          secondary: '#5bb8e5',        // --brand-bright
-          accent: '#0b5880',           // --brand-700
+          primary: '#981820',          // --brand
+          'primary-darken-1': '#7A131A',
+          secondary: '#80B040',        // --brand-bright
+          accent: '#631015',           // --brand-700
           background: '#f7f9fc',       // --surface-2
           surface: '#ffffff',
           'surface-variant': '#f1f4f9',
           success: '#12b76a',
           warning: '#f5a524',
           error: '#f04438',
-          info: '#1786be',
-          'nav-a': '#0e445a',
-          'nav-b': '#06222f',
-          'nav-accent': '#5bb8e5',
+          info: '#981820',
+          'nav-a': '#7A131A',
+          'nav-b': '#440B0E',
+          'nav-accent': '#80B040',
           'on-surface': '#141a24',
           'on-background': '#141a24',
           'on-primary': '#ffffff',
@@ -54,9 +54,9 @@ export const vuetify = createVuetify({
           background: '#f5f6fa',
           surface: '#ffffff',
           'surface-variant': '#fafbfc',
-          primary: '#1786be',
+          primary: '#981820',
           secondary: '#1f2330',
-          accent: '#1786be',
+          accent: '#981820',
           error: '#ff3d00',
           warning: '#ff9100',
           success: '#00c853',
@@ -70,7 +70,7 @@ export const vuetify = createVuetify({
       'legacy-dark': {
         dark: true,
         colors: {
-          background: '#0A192F',
+          background: '#440B0E',
           surface: '#112240',
           'surface-variant': '#1D2D50',
           primary: '#00F2FF',
@@ -82,7 +82,7 @@ export const vuetify = createVuetify({
           info: '#00F2FF',
           'on-background': '#E6F1FF',
           'on-surface': '#E6F1FF',
-          'on-primary': '#0A192F',
+          'on-primary': '#440B0E',
         },
       },
     },
@@ -116,6 +116,6 @@ export const SCORE_COLORS = {
 export const REL_KIND = {
   friend: { label: 'Đã kết bạn', dot: '#12b76a', bg: '#e7f7ef', fg: '#157f3c' },
   pending_friend: { label: 'Đã gửi mời', dot: '#f5a524', bg: '#fdf3e2', fg: '#b45309' },
-  chatting_stranger: { label: 'Đang nhắn lạ', dot: '#1786be', bg: '#e4f1f8', fg: '#1565c0' },
+  chatting_stranger: { label: 'Đang nhắn lạ', dot: '#981820', bg: '#F7E9EA', fg: '#1565c0' },
   ghost: { label: 'Đã ngắt', dot: '#9aa3b2', bg: '#f1f4f9', fg: '#475066' },
 } as const;

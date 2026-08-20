@@ -4,12 +4,12 @@
   <v-dialog v-model="open" max-width="520">
     <v-card>
       <v-card-title class="d-flex align-center">
-        <v-icon class="mr-2" color="#0E445A">mdi-shield-account</v-icon>
+        <v-icon class="mr-2" color="#7A131A">mdi-shield-account</v-icon>
         Phân quyền truy cập — {{ accountName }}
       </v-card-title>
 
       <v-card-text>
-        <v-progress-linear v-if="loading" indeterminate color="#1786BE" class="mb-3" />
+        <v-progress-linear v-if="loading" indeterminate color="#981820" class="mb-3" />
 
         <!-- Current access list -->
         <div v-if="accessList.length" class="mb-4">

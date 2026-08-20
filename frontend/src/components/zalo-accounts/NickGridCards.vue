@@ -313,8 +313,8 @@ function initials(name?: string | null): string {
 .ngc-statebtn.on:hover { background: #dc2626; color: #fff; }
 .ngc-statebtn.on:hover .lbl-on { display: none; }
 .ngc-statebtn.on:hover .lbl-hover { display: inline-flex; align-items: center; gap: 5px; }
-.ngc-statebtn.off { background: var(--brand-soft, #e4f1f8); color: var(--brand-700, #1786be); }
-.ngc-statebtn.off:hover:not(:disabled) { background: var(--brand-700, #1786be); color: #fff; }
+.ngc-statebtn.off { background: var(--brand-soft, #F7E9EA); color: var(--brand-700, #981820); }
+.ngc-statebtn.off:hover:not(:disabled) { background: var(--brand-700, #981820); color: #fff; }
 .ngc-statebtn:disabled { opacity: .55; cursor: not-allowed; }
 .ngc-statebtn.readonly { cursor: default; }
 .ngc-statebtn.readonly.off { background: #f3f4f6; color: #6b7280; }

@@ -319,7 +319,7 @@ const byUser = computed<any[]>(() => (Array.isArray(pool.value?.byUser) ? pool.v
 const stuck = computed<any[]>(() => (Array.isArray(pool.value?.stuck) ? pool.value.stuck : []));
 
 // ---- styling helpers ----
-const avPalette = ['#7a4fb0', '#1786be', '#b0734f', '#4fb09a', '#b04f6e', '#5a7fb0', '#f79009', '#12b76a'];
+const avPalette = ['#7a4fb0', '#981820', '#b0734f', '#4fb09a', '#b04f6e', '#5a7fb0', '#f79009', '#12b76a'];
 function avColor(i: number): string {
   return avPalette[i % avPalette.length];
 }

@@ -1629,20 +1629,20 @@ if (typeof window !== 'undefined') {
    Đổi accent từ --at-ink (đen trung tính) → brand teal-blue HS; hàng KH liên kết
    từ coral (đỏ) → brand-soft. --brand* là token global (hs-crm-theme.css). Đặt
    CUỐI block để thắng cascade (cùng specificity → rule sau thắng). */
-.editor { border-top: 3px solid var(--brand, #1786be); }
-.editor-head { background: linear-gradient(180deg, var(--brand-softer, #f2f8fc), var(--at-canvas, #fff)); }
-.editor-head h2 { color: var(--brand-700, #0b5880); font-weight: 700; display: flex; align-items: center; gap: 7px; }
-.editor-head h2 .head-ic { color: var(--brand, #1786be); }
+.editor { border-top: 3px solid var(--brand, #981820); }
+.editor-head { background: linear-gradient(180deg, var(--brand-softer, #FCF5F5), var(--at-canvas, #fff)); }
+.editor-head h2 { color: var(--brand-700, #631015); font-weight: 700; display: flex; align-items: center; gap: 7px; }
+.editor-head h2 .head-ic { color: var(--brand, #981820); }
 
 /* Icon MDI inline (thay emoji) — căn giữa theo dòng chữ, kế thừa màu chữ */
 .editor :deep(.v-icon),
 .picker-popup :deep(.v-icon) { vertical-align: middle; }
 
 /* Hàng KH liên kết: coral → brand-soft, chữ về ink bình thường */
-.linked-kh-row { background: var(--brand-soft, #e4f1f8); }
+.linked-kh-row { background: var(--brand-soft, #F7E9EA); }
 .linked-kh-row .linked-info { color: var(--at-ink, #1f2d3d); }
-.link-kh-btn { color: var(--brand-700, #0b5880); }
-.link-kh-btn:hover { background: var(--brand-softer, #f2f8fc); border-color: var(--brand, #1786be); }
+.link-kh-btn { color: var(--brand-700, #631015); }
+.link-kh-btn:hover { background: var(--brand-softer, #FCF5F5); border-color: var(--brand, #981820); }
 
 /* Focus → viền + glow brand */
 .title-input-wrap:focus-within,
@@ -1650,21 +1650,21 @@ if (typeof window !== 'undefined') {
 .sale-select:focus,
 .cust-suggest-search:focus,
 .notes-area:focus,
-.picker-display.open { border-color: var(--brand, #1786be); box-shadow: 0 0 0 3px var(--brand-soft, #e4f1f8); }
+.picker-display.open { border-color: var(--brand, #981820); box-shadow: 0 0 0 3px var(--brand-soft, #F7E9EA); }
 
 /* Chips đang chọn → brand */
 .type-chip.active,
 .tag-chip.active,
 .tip-chip.active,
-.loc-chip.active { background: var(--brand-soft, #e4f1f8); border-color: var(--brand, #1786be); color: var(--brand-700, #0b5880); }
+.loc-chip.active { background: var(--brand-soft, #F7E9EA); border-color: var(--brand, #981820); color: var(--brand-700, #631015); }
 
 /* Ngày/giờ đang chọn → brand */
-.dp-day.today { background: var(--brand, #1786be); color: #fff; }
-.dp-day.selected:not(.today) { background: var(--brand-soft, #e4f1f8); color: var(--brand-700, #0b5880); border-color: var(--brand, #1786be); }
-.tp-wheel-item.selected { color: var(--brand-700, #0b5880); }
+.dp-day.today { background: var(--brand, #981820); color: #fff; }
+.dp-day.selected:not(.today) { background: var(--brand-soft, #F7E9EA); color: var(--brand-700, #631015); border-color: var(--brand, #981820); }
+.tp-wheel-item.selected { color: var(--brand-700, #631015); }
 
 /* Nút primary (Tạo/Cập nhật + Xác nhận popup) → brand */
-.at-btn--primary { background: var(--brand, #1786be); color: #fff; }
-.at-btn--primary:hover:not(:disabled) { background: var(--brand-600, #0f6fa0); }
-.at-btn--primary:active:not(:disabled) { background: var(--brand-700, #0b5880); }
+.at-btn--primary { background: var(--brand, #981820); color: #fff; }
+.at-btn--primary:hover:not(:disabled) { background: var(--brand-600, #7A131A); }
+.at-btn--primary:active:not(:disabled) { background: var(--brand-700, #631015); }
 </style>

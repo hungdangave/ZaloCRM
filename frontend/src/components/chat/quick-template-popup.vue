@@ -35,7 +35,7 @@
           @mouseenter="selectedIndex = i"
         >
           <v-icon :icon="tpl.isPersonal ? 'mdi-account' : 'mdi-account-group'" size="15"
-            :color="tpl.isPersonal ? '#1786be' : '#9ca3af'" class="qtp-item-icon" />
+            :color="tpl.isPersonal ? '#981820' : '#9ca3af'" class="qtp-item-icon" />
           <span class="qtp-item-body">
             <span class="qtp-item-name">
               {{ tpl.name }}
@@ -288,8 +288,8 @@ defineExpose({ onKey });
 .qtp-count { background: #e6f3fb; color: #0f6ea3; font-size: 10.5px; font-weight: 700; padding: 0 6px; border-radius: 999px; }
 .qtp-tagbar { display: flex; gap: 5px; flex-wrap: wrap; }
 .qtp-tag { font-size: 11px; padding: 3px 9px; border: 1px solid #e3e6eb; background: #fff; border-radius: 999px; color: #4b5563; cursor: pointer; white-space: nowrap; }
-.qtp-tag:hover { border-color: #1786be; }
-.qtp-tag.active { background: #e6f3fb; border-color: #1786be; color: #0f6ea3; font-weight: 600; }
+.qtp-tag:hover { border-color: #981820; }
+.qtp-tag.active { background: #e6f3fb; border-color: #981820; color: #0f6ea3; font-weight: 600; }
 
 /* Xem trước — gọn 2 dòng */
 .qtp-preview {

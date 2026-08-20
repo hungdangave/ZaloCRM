@@ -583,7 +583,7 @@ defineExpose({ rootCount: rootNoteCount });
 .tl-seg-tab:hover { color: var(--smax-text); }
 .tl-seg-tab.on {
   background: #fff;
-  color: var(--smax-primary, #1786be);
+  color: var(--smax-primary, #981820);
   box-shadow: 0 1px 2px rgba(20,26,36,.05);
 }
 /* Settings cog — button vuông 38px tách riêng — hs-chat .cx-tl-cog */

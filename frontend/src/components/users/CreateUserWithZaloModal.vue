@@ -486,9 +486,9 @@ watch(
   font-size: 12.5px; line-height: 1.6; background: white; border: 1px solid #ddd;
   border-radius: 7px; padding: 10px 12px; color: #1f2937; resize: vertical;
 }
-.cuwz-cred-textarea:focus { outline: none; border-color: var(--brand, #1786be); }
+.cuwz-cred-textarea:focus { outline: none; border-color: var(--brand, #981820); }
 .btn-copy-all {
-  margin-top: 8px; border: none; background: var(--brand, #1786be); color: white;
+  margin-top: 8px; border: none; background: var(--brand, #981820); color: white;
   padding: 8px 16px; border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer;
 }
 .btn-copy-all:hover { filter: brightness(0.95); }

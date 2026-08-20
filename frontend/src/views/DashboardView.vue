@@ -689,7 +689,7 @@ function onOutsideClick(e: MouseEvent) {
 .dh-pdd-group { font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--at-hint, #94a3b8); padding: 6px 8px 2px; letter-spacing: 0.3px; }
 .dh-pdd-item { padding: 6px 8px; font-size: 12.5px; border-radius: 6px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
 .dh-pdd-item:hover { background: var(--at-surface-soft, #f8fafc); }
-.dh-pdd-item.active { background: var(--at-action-soft, #e4f1f8); color: var(--at-action, #1786be); font-weight: 600; }
+.dh-pdd-item.active { background: var(--at-action-soft, #F7E9EA); color: var(--at-action, #981820); font-weight: 600; }
 .dh-pdd-dept { font-size: 10.5px; color: var(--at-hint, #94a3b8); }
 
 /* ── Thẻ "Cần rep gấp" nâng cấp: avatar thật + preview tin + trạng thái KH ── */

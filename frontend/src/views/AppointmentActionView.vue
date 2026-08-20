@@ -133,16 +133,16 @@ onMounted(load);
 .aa-wrap { position: fixed; inset: 0; box-sizing: border-box;
   min-height: 100vh; min-height: 100dvh; display: flex; justify-content: center; overflow-y: auto;
   padding: calc(16px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
-  background: linear-gradient(160deg, #0e445a 0%, #06222f 100%); }
+  background: linear-gradient(160deg, #7A131A 0%, #440B0E 100%); }
 .aa-card { width: 100%; max-width: 380px; margin: auto; background: #fff; border-radius: 16px; padding: 22px 20px 24px;
   box-shadow: 0 16px 48px rgba(0,0,0,.3); font-family: Inter, system-ui, -apple-system, sans-serif; color: #141a24; }
-.aa-brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 14px; color: #0b5880; margin-bottom: 16px; }
-.aa-logo { width: 26px; height: 26px; border-radius: 8px; background: linear-gradient(135deg, #1786be, #0b5880); color: #fff;
+.aa-brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 14px; color: #631015; margin-bottom: 16px; }
+.aa-logo { width: 26px; height: 26px; border-radius: 8px; background: linear-gradient(135deg, #981820, #631015); color: #fff;
   font-size: 11px; display: grid; place-items: center; }
 .aa-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
 .aa-head h2 { margin: 0; font-size: 17px; font-weight: 700; }
 .aa-ic { width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center; font-size: 19px; flex: none; }
-.aa-ic.cal { background: #e4f1f8; }
+.aa-ic.cal { background: #F7E9EA; }
 .aa-ic.ok { background: #e7f7ef; color: #12b76a; font-weight: 800; }
 .aa-ic.err { background: #fdeceb; color: #f04438; font-weight: 800; }
 .aa-info { display: flex; flex-direction: column; gap: 9px; padding: 12px 0; border-top: 1px solid #eef1f6; border-bottom: 1px solid #eef1f6; margin-bottom: 16px; }

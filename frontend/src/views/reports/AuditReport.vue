@@ -94,7 +94,7 @@ function initials(name?: string): string {
   return (parts[parts.length - 2][0] + parts[parts.length - 1][0]).toUpperCase()
 }
 
-const AV_COLORS = ['#1786be', '#7a4fb0', '#b0734f', '#4fb09a', '#b04f6e', '#0b5880', '#5bb8e5', '#157f3c']
+const AV_COLORS = ['#981820', '#7a4fb0', '#b0734f', '#4fb09a', '#b04f6e', '#631015', '#80B040', '#157f3c']
 function avColor(name?: string): string {
   const s = name || ''
   let h = 0
@@ -341,7 +341,7 @@ function disconnectDot(reason?: string): string {
                 <td class="muted">{{ fmtTs(a?.ts) }}</td>
                 <td>
                   <div class="cellname">
-                    <span class="av" :style="{ background: a?.isBot ? '#0f6fa0' : avColor(a?.actorName) }">
+                    <span class="av" :style="{ background: a?.isBot ? '#7A131A' : avColor(a?.actorName) }">
                       <v-icon v-if="a?.isBot" icon="mdi-robot" size="14" />
                       <template v-else>{{ initials(a?.actorName) }}</template>
                     </span>

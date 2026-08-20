@@ -339,7 +339,7 @@ function initials(name: string): string {
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
-const AV_COLORS = ['#1786be', '#7a4fb0', '#b0734f', '#f79009', '#b04f6e', '#4fb09a', '#2f7dbd', '#9a4fb0', '#b0954f', '#7785a0'];
+const AV_COLORS = ['#981820', '#7a4fb0', '#b0734f', '#f79009', '#b04f6e', '#4fb09a', '#2f7dbd', '#9a4fb0', '#b0954f', '#7785a0'];
 function avColor(name: string): string {
   const s = name || '';
   let h = 0;

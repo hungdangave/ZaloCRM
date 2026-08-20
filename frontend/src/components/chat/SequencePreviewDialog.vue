@@ -13,7 +13,7 @@
       <!-- Header -->
       <div class="spd-head">
         <div class="spd-title">
-          <v-icon size="18" color="#1786be">mdi-eye-outline</v-icon>
+          <v-icon size="18" color="#981820">mdi-eye-outline</v-icon>
           Xem trước luồng <strong>{{ sequenceName }}</strong>
         </div>
         <button class="spd-x" @click="close"><v-icon size="18">mdi-close</v-icon></button>
@@ -207,8 +207,8 @@ function formatSendTime(iso: string | null): string {
 .spd-x { border: none; background: transparent; cursor: pointer; color: #6b7280; }
 .spd-picker { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 18px; border-bottom: 1px solid var(--line, #e6e8eb); }
 .spd-picker-lb { font-size: 13px; color: #6b7280; }
-.spd-chip { display: inline-flex; align-items: center; gap: 4px; background: #e7f3fb; color: #1786be; border-radius: 14px; padding: 3px 6px 3px 10px; font-size: 13px; font-weight: 500; }
-.spd-chip-x { border: none; background: transparent; cursor: pointer; color: #1786be; display: inline-flex; }
+.spd-chip { display: inline-flex; align-items: center; gap: 4px; background: #e7f3fb; color: #981820; border-radius: 14px; padding: 3px 6px 3px 10px; font-size: 13px; font-weight: 500; }
+.spd-chip-x { border: none; background: transparent; cursor: pointer; color: #981820; display: inline-flex; }
 .spd-search-wrap { position: relative; }
 .spd-search { border: 1px solid var(--line, #d6dade); border-radius: 14px; padding: 4px 12px; font-size: 13px; min-width: 200px; }
 .spd-search-pop { position: absolute; top: 110%; left: 0; background: #fff; border: 1px solid var(--line, #e6e8eb); border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,.12); min-width: 240px; max-height: 240px; overflow-y: auto; z-index: 10; }

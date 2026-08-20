@@ -82,6 +82,6 @@ defineProps<{
   padding: 44px 40px;
 }
 .form-inner { width: 100%; max-width: 340px; }
-.form-title { font-size: 24px; font-weight: 700; color: #0e445a; margin: 0 0 4px; }
+.form-title { font-size: 24px; font-weight: 700; color: #7A131A; margin: 0 0 4px; }
 .form-sub { font-size: 13.5px; color: #6b7884; margin: 0 0 26px; }
 </style>

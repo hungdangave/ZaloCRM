@@ -1656,7 +1656,7 @@ async function onRegenerateHandoff() {
   border-radius: 8px;
   padding: 3px 10px;
   font-size: 12px;
-  color: var(--smax-primary, #1786be);
+  color: var(--smax-primary, #981820);
   cursor: pointer;
 }
 .pex-add:hover { background: var(--smax-primary-soft); }

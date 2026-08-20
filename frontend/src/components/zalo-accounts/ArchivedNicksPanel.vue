@@ -179,7 +179,7 @@ function fmtDate(iso: string | null): string {
 
 .anp-nick { display: flex; align-items: center; gap: 9px; }
 .anp-av {
-  width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0; background: var(--brand, #1786be); color: #fff;
+  width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0; background: var(--brand, #981820); color: #fff;
   display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700;
 }
 .anp-nm { font-weight: 600; }
@@ -195,7 +195,7 @@ function fmtDate(iso: string | null): string {
   border: 1px solid var(--line, #e5e7eb); background: var(--surface, #fff);
 }
 .anp-btn:disabled { opacity: 0.55; cursor: not-allowed; }
-.anp-btn.restore { border-color: var(--brand, #1786be); color: var(--brand, #1786be); }
+.anp-btn.restore { border-color: var(--brand, #981820); color: var(--brand, #981820); }
 .anp-btn.restore:hover:not(:disabled) { background: #eaf6fb; }
 .anp-btn.purge { border-color: #fca5a5; color: #dc2626; }
 .anp-btn.purge:hover:not(:disabled) { background: #fef2f2; }

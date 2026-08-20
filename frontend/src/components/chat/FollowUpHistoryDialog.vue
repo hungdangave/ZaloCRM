@@ -253,7 +253,7 @@ function fmt(iso: string): string {
 .fh-step { font-size: 10.5px; font-weight: 700; color: var(--brand-700); }
 .fh-who { font-size: 10.5px; font-weight: 700; color: var(--ink-2); }
 .fh-st { font-size: 10px; font-weight: 600; color: var(--ink-3); }
-.fh-st.seen { color: #1786be; }
+.fh-st.seen { color: #981820; }
 .fh-st.delivered { color: var(--ink-2); }
 .fh-text { white-space: pre-wrap; word-break: break-word; }
 .fh-imgs { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }

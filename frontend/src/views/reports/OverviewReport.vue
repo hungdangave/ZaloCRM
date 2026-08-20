@@ -72,7 +72,7 @@ function initials(name?: string): string {
   return (parts[parts.length - 2][0] + parts[parts.length - 1][0]).toUpperCase()
 }
 
-const AV_COLORS = ['#1786be', '#7a4fb0', '#b0734f', '#4fb09a', '#b04f6e', '#0b5880', '#5bb8e5', '#157f3c']
+const AV_COLORS = ['#981820', '#7a4fb0', '#b0734f', '#4fb09a', '#b04f6e', '#631015', '#80B040', '#157f3c']
 function avColor(name?: string): string {
   const s = name || ''
   let h = 0

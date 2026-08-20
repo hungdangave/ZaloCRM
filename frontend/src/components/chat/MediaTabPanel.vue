@@ -5,7 +5,7 @@
   4 sub-tab: Ảnh / Video / Tệp / Khối. Ảnh/Video/Tệp = kho media (tái dùng logic
   MediaPickerPopover: listMedia + sendMediaToConversation + sendAlbumToConversation).
   Khối = nhúng AutomationBlocksPanel (kịch bản nhiều tin, có xem trước). Mọi thứ gửi
-  THẲNG vào conversation đang mở. Atlas v2 (token --at-*, action #1786be) + Lucide icon,
+  THẲNG vào conversation đang mở. Atlas v2 (token --at-*, action #981820) + Lucide icon,
   KHÔNG emoji. Mockup duyệt: docs/mockup-media-tab-merge-atlas-v2-20260612.html.
 -->
 <template>
@@ -314,7 +314,7 @@ function fileIcon(name: string): { label: string; bg: string; fg: string } {
   const ext = (name.split('.').pop() || '').toLowerCase();
   if (ext === 'pdf') return { label: 'PDF', bg: '#fdeceb', fg: '#c0392b' };
   if (['xls', 'xlsx', 'csv'].includes(ext)) return { label: 'XLS', bg: '#e7f7ef', fg: '#1e7e45' };
-  if (['doc', 'docx'].includes(ext)) return { label: 'DOC', bg: '#e4f1f8', fg: '#1a5cc0' };
+  if (['doc', 'docx'].includes(ext)) return { label: 'DOC', bg: '#F7E9EA', fg: '#1a5cc0' };
   if (['ppt', 'pptx'].includes(ext)) return { label: 'PPT', bg: '#fdeee4', fg: '#c75b1e' };
   if (['zip', 'rar', '7z'].includes(ext)) return { label: 'ZIP', bg: '#eae6ff', fg: '#6b4fb0' };
   return { label: (ext || 'FILE').slice(0, 4).toUpperCase(), bg: '#eef0f2', fg: '#41454d' };
@@ -452,7 +452,7 @@ onMounted(async () => {
 <style scoped>
 .mtp {
   display: flex; flex-direction: column; min-height: 0; height: 100%;
-  --at-action: #1786be; --at-action-soft: #e4f1f8; --at-ink: #141a24;
+  --at-action: #981820; --at-action-soft: #F7E9EA; --at-ink: #141a24;
   --at-body: #475066; --at-hint: #8b93a7; --at-hairline: #e7eaf0;
   --at-canvas: #fff; --at-surface-soft: #f1f4f9; --mono: "Roboto Mono", monospace;
 }

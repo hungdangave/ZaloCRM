@@ -40,15 +40,15 @@
      Các view Marketing chỉ dùng coral (1-2 chỗ) + forest/cream lẻ tẻ. */
   --at-coral: var(--error, #f04438);
   --at-forest: var(--success, #12b76a);
-  --at-cream: var(--brand-softer, #f2f8fc);
+  --at-cream: var(--brand-softer, #FCF5F5);
   --at-peach: #fcab79;
   --at-mint: var(--success-soft, #a8d8c4);
   --at-yellow: var(--warning, #f4d35e);
   --at-mustard: var(--warning, #d9a441);
 
-  --at-link: var(--brand, #1786be);
-  --at-link-active: var(--brand-700, #0b5880);
-  --at-info-border: var(--brand-bright, #5bb8e5);
+  --at-link: var(--brand, #981820);
+  --at-link-active: var(--brand-700, #631015);
+  --at-info-border: var(--brand-bright, #80B040);
   --at-success: var(--success, #12b76a);
 
   --at-on-primary: #ffffff;
@@ -256,9 +256,9 @@
      Anh chốt 2026-06-04: action button trong page body dùng xanh sáng. */
   /* HS re-skin — action button trong page body = brand HS metallic blue
      (thay #0068ff Atlassian). active/soft theo brand-700/brand-soft. */
-  --at-action: var(--brand, #1786be);
-  --at-action-active: var(--brand-700, #0b5880);
-  --at-action-soft: var(--brand-soft, #e4f1f8);
+  --at-action: var(--brand, #981820);
+  --at-action-active: var(--brand-700, #631015);
+  --at-action-soft: var(--brand-soft, #F7E9EA);
 
   /* Atlas semantic → HS semantic. prefix -atlas- vẫn giữ tên, chỉ đổi giá trị. */
   --at-atlas-success: var(--success, #12b76a);

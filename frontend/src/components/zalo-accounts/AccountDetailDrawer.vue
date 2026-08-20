@@ -649,13 +649,13 @@ function maskPhone(p: string): string {
   border: 1px solid var(--line, #e5e7eb); background: var(--surface, #fff); color: var(--ink-2, #4b5563);
 }
 .phone-edit:hover { background: var(--surface-3, #f3f4f6); }
-.phone-save { background: var(--brand, #1786be); border-color: var(--brand, #1786be); color: #fff; }
+.phone-save { background: var(--brand, #981820); border-color: var(--brand, #981820); color: #fff; }
 .phone-save:disabled { opacity: 0.6; cursor: not-allowed; }
 .phone-input {
   width: 130px; font-size: 12px; font-family: inherit; padding: 3px 8px;
   border: 1px solid var(--line, #e5e7eb); border-radius: 6px; color: var(--ink, #111827); background: var(--surface, #fff);
 }
-.phone-input:focus { outline: none; border-color: var(--brand, #1786be); }
+.phone-input:focus { outline: none; border-color: var(--brand, #981820); }
 
 .status {
   display: inline-flex;

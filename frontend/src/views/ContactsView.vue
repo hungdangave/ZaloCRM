@@ -932,7 +932,7 @@ const activeStatKey = ref<string | null>(null);
 // Màu chấm KPI (thay emoji — line/dot HS theme).
 const STAT_DOT: Record<string, string> = {
   total: 'var(--ink-3, #6b7488)', withNick: 'var(--success, #12b76a)', active7d: 'var(--warning, #f5a524)',
-  newToday: 'var(--brand, #1786be)', highScore: '#f5a524', multiClaim: 'var(--purple, #8b5cf6)', noZalo: 'var(--error, #f04438)',
+  newToday: 'var(--brand, #981820)', highScore: '#f5a524', multiClaim: 'var(--purple, #8b5cf6)', noZalo: 'var(--error, #f04438)',
 };
 const statBoxes = computed<StatBox[]>(() => [
   { key: 'total', icon: '📋', label: 'Tổng KH', value: stats.value.total ?? total.value },

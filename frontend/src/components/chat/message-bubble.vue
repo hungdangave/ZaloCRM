@@ -1207,10 +1207,10 @@ async function openFile(href: string, name?: string) {
 /* Auto-link URL + SĐT (2026-06-22) — v-html nên dùng :deep. SĐT là <span> nên cần style
    riêng để trông bấm-được; URL là <a> ăn màu link mặc định, gắn thêm cho đồng nhất. */
 .text-content :deep(.link),
-.media-caption :deep(.link) { color: var(--brand, #1786be); word-break: break-all; }
+.media-caption :deep(.link) { color: var(--brand, #981820); word-break: break-all; }
 .text-content :deep(.phone-link),
 .media-caption :deep(.phone-link) {
-  color: var(--brand, #1786be);
+  color: var(--brand, #981820);
   cursor: pointer;
   border-bottom: 1px dashed currentColor;
 }

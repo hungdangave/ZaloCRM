@@ -230,7 +230,7 @@ const showPwModal = ref(false);
 .avatar-edit {
   position: absolute; right: -2px; bottom: -2px;
   width: 30px; height: 30px; border-radius: 50%;
-  background: var(--brand, #1786be); color: #fff;
+  background: var(--brand, #981820); color: #fff;
   border: 2px solid #fff; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   font-size: 14px; box-shadow: var(--sh-sm, 0 1px 3px rgba(20,26,36,.06));
@@ -259,7 +259,7 @@ const showPwModal = ref(false);
   border: 1px solid var(--line, #e7eaf0); border-radius: var(--r-sm, 8px);
   outline: none; font-family: inherit;
 }
-.finput:focus { border-color: var(--brand, #1786be); box-shadow: 0 0 0 3px rgba(23,134,190,.12); }
+.finput:focus { border-color: var(--brand, #981820); box-shadow: 0 0 0 3px rgba(23,134,190,.12); }
 .locked {
   font-size: 11px; color: var(--ink-4, #97a0b3);
   background: var(--surface-3, #f1f4f9); padding: 2px 8px; border-radius: var(--r-pill, 999px);
@@ -268,7 +268,7 @@ const showPwModal = ref(false);
 /* Role chip */
 .role-chip { font-size: 11.5px; font-weight: 700; padding: 3px 11px; border-radius: var(--r-pill, 999px); }
 .role-owner { background: #fdf4e3; color: #92610c; }
-.role-admin { background: var(--brand-soft, #e4f1f8); color: var(--brand-700, #0b5880); }
+.role-admin { background: var(--brand-soft, #F7E9EA); color: var(--brand-700, #631015); }
 .role-member { background: #e8f6ed; color: #166534; }
 
 /* Security */
@@ -283,10 +283,10 @@ const showPwModal = ref(false);
   border: 1px solid var(--line, #e7eaf0); border-radius: var(--r-md, 10px);
   cursor: pointer; background: #fff; text-decoration: none;
 }
-.sc:hover { border-color: var(--brand, #1786be); background: var(--brand-softer, #f2f8fc); }
+.sc:hover { border-color: var(--brand, #981820); background: var(--brand-softer, #FCF5F5); }
 .sc-ic {
   width: 36px; height: 36px; border-radius: var(--r-sm, 8px); flex-shrink: 0;
-  background: var(--brand-soft, #e4f1f8); color: var(--brand-700, #0b5880);
+  background: var(--brand-soft, #F7E9EA); color: var(--brand-700, #631015);
   display: flex; align-items: center; justify-content: center; font-size: 18px;
 }
 .sc-txt { flex: 1; }
@@ -305,8 +305,8 @@ const showPwModal = ref(false);
 .btn:hover:not(:disabled) { background: var(--surface-3, #f1f4f9); }
 .btn:disabled { opacity: .55; cursor: default; }
 .btn-sm { padding: 6px 12px; font-size: 12.5px; }
-.btn-primary { background: var(--brand, #1786be); border-color: var(--brand, #1786be); color: #fff; }
-.btn-primary:hover:not(:disabled) { background: var(--brand-600, #0f6fa0); }
+.btn-primary { background: var(--brand, #981820); border-color: var(--brand, #981820); color: #fff; }
+.btn-primary:hover:not(:disabled) { background: var(--brand-600, #7A131A); }
 .btn-danger { color: var(--error, #f04438); border-color: #f5c4c0; }
 .btn-danger:hover:not(:disabled) { background: var(--error-soft, #fdeceb); }
 </style>

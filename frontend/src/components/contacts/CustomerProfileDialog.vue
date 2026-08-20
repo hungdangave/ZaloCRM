@@ -468,7 +468,7 @@ const cc = computed<Record<string, any>>(() => (c.value ?? {}) as any);
 const scoreBd = computed(() => {
   const b = cc.value.aggregateBreakdown || {};
   return [
-    { key: 'engagement', label: 'Tương tác', val: Number(b.engagement ?? 0), color: '#1786be' },
+    { key: 'engagement', label: 'Tương tác', val: Number(b.engagement ?? 0), color: '#981820' },
     { key: 'intent',     label: 'Ý định mua', val: Number(b.intent ?? 0),     color: '#ec4899' },
     { key: 'fit',        label: 'Phù hợp',    val: Number(b.fit ?? 0),        color: '#12b76a' },
     { key: 'velocity',   label: 'Tốc độ',     val: Number(b.velocity ?? 0),   color: '#f5a524' },
@@ -1026,7 +1026,7 @@ async function copyAttr(code: string) {
 .attr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .attr-card { border: 1px solid var(--line, #e7eaf0); border-radius: var(--r-md, 10px); overflow: hidden; background: var(--surface, #fff); }
 .attr-card.full { grid-column: 1 / -1; }
-.attr-h { margin: 0; padding: 9px 13px; font-size: 12px; font-weight: 700; color: var(--brand-700, #0b5880); background: var(--surface-2, #f7f9fc); border-bottom: 1px solid var(--line, #e7eaf0); display: flex; align-items: center; gap: 7px; }
+.attr-h { margin: 0; padding: 9px 13px; font-size: 12px; font-weight: 700; color: var(--brand-700, #631015); background: var(--surface-2, #f7f9fc); border-bottom: 1px solid var(--line, #e7eaf0); display: flex; align-items: center; gap: 7px; }
 .attr-h .ic { font-size: 13px; }
 .dim { color: var(--ink-4, #97a0b3); }
 /* nhóm "ngoài biến" gộp vào bảng: mono ID + ô "không có hàm" (—) đồng nhất với .attr-* */
@@ -1044,7 +1044,7 @@ async function copyAttr(code: string) {
 .attr-tablewrap { border: 1px solid var(--line, #e7eaf0); border-radius: var(--r-md, 10px); overflow: hidden; background: var(--surface, #fff); }
 .attr-tbhead { display: flex; align-items: center; gap: 10px; background: var(--surface-2, #f7f9fc); border-bottom: 1px solid var(--line, #e7eaf0); padding-right: 12px; }
 .attr-tbhead .attr-h { flex: 1; border-bottom: 0; background: none; }
-.attr-h .hh { font-family: var(--mono, 'Roboto Mono', monospace); font-size: 10.5px; background: var(--brand-soft, #e4f1f8); color: var(--brand-700, #0b5880); padding: 0 5px; border-radius: 4px; }
+.attr-h .hh { font-family: var(--mono, 'Roboto Mono', monospace); font-size: 10.5px; background: var(--brand-soft, #F7E9EA); color: var(--brand-700, #631015); padding: 0 5px; border-radius: 4px; }
 .attr-nicksel { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--ink-3, #6b7488); font-weight: 600; white-space: nowrap; }
 .cpd-in.sm { height: 28px; padding: 0 8px; font-size: 12px; border: 1px solid var(--line, #e7eaf0); border-radius: 6px; background: var(--surface, #fff); color: var(--ink, #141a24); max-width: 200px; }
 .attr-tb { width: 100%; border-collapse: collapse; font-size: 12.5px; }
@@ -1054,10 +1054,10 @@ async function copyAttr(code: string) {
 .attr-itrow { border-bottom: 1px solid var(--line-2, #eef1f6); }
 .attr-itrow:hover { background: var(--surface-2, #f7f9fc); }
 .attr-lbl { padding: 6px 13px; color: var(--ink-2, #475066); font-weight: 600; }
-.pn-dot { color: var(--brand, #1786be); font-size: 8px; margin-left: 5px; vertical-align: 1px; }
+.pn-dot { color: var(--brand, #981820); font-size: 8px; margin-left: 5px; vertical-align: 1px; }
 .attr-code { padding: 5px 13px; }
-.codechip { font-family: var(--mono, 'Roboto Mono', monospace); font-size: 11px; color: var(--brand-700, #0b5880); background: var(--brand-soft, #e4f1f8); border: 1px solid transparent; border-radius: 5px; padding: 2px 7px; cursor: pointer; transition: background .12s, border-color .12s; }
-.codechip:hover { background: var(--brand, #1786be); color: #fff; border-color: var(--brand, #1786be); }
+.codechip { font-family: var(--mono, 'Roboto Mono', monospace); font-size: 11px; color: var(--brand-700, #631015); background: var(--brand-soft, #F7E9EA); border: 1px solid transparent; border-radius: 5px; padding: 2px 7px; cursor: pointer; transition: background .12s, border-color .12s; }
+.codechip:hover { background: var(--brand, #981820); color: #fff; border-color: var(--brand, #981820); }
 .codechip:active { transform: translateY(1px); }
 .attr-val { padding: 6px 13px; color: var(--ink, #141a24); word-break: break-word; }
 .attr-val .av-real { font-weight: 500; }

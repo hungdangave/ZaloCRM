@@ -200,7 +200,7 @@ async function handleSubmit() {
   /* teal-navy HS shell — đồng bộ top-nav */
   background:
     radial-gradient(1100px 520px at 50% -10%, rgba(23, 134, 190, 0.18), transparent 60%),
-    linear-gradient(180deg, #0e445a 0%, #06222f 100%);
+    linear-gradient(180deg, #7A131A 0%, #440B0E 100%);
   padding: 16px;
   /* tránh tràn ngang trên màn hẹp + cho cuộn dọc nếu card cao hơn viewport ngắn */
   overflow-x: hidden;
@@ -233,19 +233,19 @@ async function handleSubmit() {
 .fpc-bbox {
   width: 38px; height: 38px; border-radius: 10px;
   display: flex; align-items: center; justify-content: center;
-  background: linear-gradient(135deg, #1786be 0%, #0b5880 100%);
+  background: linear-gradient(135deg, #981820 0%, #631015 100%);
   box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.18), 0 1px 2px rgba(0, 0, 0, 0.2);
   flex: none;
 }
 .fpc-bbox img { width: 26px; height: auto; display: block; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.3)); }
 .fpc-bwm { display: flex; flex-direction: column; line-height: 1.08; }
 .fpc-b1 { font-size: 15px; font-weight: 800; color: var(--ink, #141a24); letter-spacing: .01em; }
-.fpc-b2 { font-size: 10px; font-weight: 700; letter-spacing: .26em; color: var(--brand, #1786be); text-transform: uppercase; }
+.fpc-b2 { font-size: 10px; font-weight: 700; letter-spacing: .26em; color: var(--brand, #981820); text-transform: uppercase; }
 
 .fpc-icon {
   width: 60px; height: 60px;
-  background: var(--brand-soft, #e4f1f8);
-  color: var(--brand, #1786be);
+  background: var(--brand-soft, #F7E9EA);
+  color: var(--brand, #981820);
   border-radius: var(--r-lg, 14px);
   display: flex; align-items: center; justify-content: center;
   margin: 0 auto 14px;
@@ -293,8 +293,8 @@ async function handleSubmit() {
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 .fpc-input:focus {
-  border-color: var(--brand, #1786be);
-  box-shadow: 0 0 0 3px var(--brand-soft, #e4f1f8);
+  border-color: var(--brand, #981820);
+  box-shadow: 0 0 0 3px var(--brand-soft, #F7E9EA);
 }
 .fpc-input-error {
   border-color: var(--error, #ef4444);
@@ -312,7 +312,7 @@ async function handleSubmit() {
 .pw-eye:hover { color: var(--ink-2, #475066); background: rgba(0,0,0,.04); }
 
 .fpc-strength {
-  background: var(--brand-softer, #f2f8fc);
+  background: var(--brand-softer, #FCF5F5);
   border: 1px solid var(--line, #e7eaf0);
   padding: 10px 14px;
   border-radius: var(--r-sm, 8px);
@@ -353,7 +353,7 @@ async function handleSubmit() {
 
 .fpc-submit {
   margin-top: 14px;
-  background: var(--brand, #1786be);
+  background: var(--brand, #981820);
   color: #fff;
   border: none;
   padding: 13px 24px;
@@ -365,7 +365,7 @@ async function handleSubmit() {
   transition: background 0.15s;
 }
 .fpc-submit:hover:not(:disabled) {
-  background: var(--brand-600, #0f6fa0);
+  background: var(--brand-600, #7A131A);
 }
 .fpc-submit:disabled {
   opacity: 0.5;

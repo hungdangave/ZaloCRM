@@ -770,9 +770,9 @@ const linkDescription = computed<string>(() => {
 }
 .rich-link:hover { text-decoration: underline; }
 /* Auto-link URL + SĐT trong tin rich (2026-06-22) — v-html nên dùng :deep. */
-.special-message :deep(.link) { color: var(--brand, #1786be); word-break: break-all; }
+.special-message :deep(.link) { color: var(--brand, #981820); word-break: break-all; }
 .special-message :deep(.phone-link) {
-  color: var(--brand, #1786be);
+  color: var(--brand, #981820);
   cursor: pointer;
   border-bottom: 1px dashed currentColor;
 }

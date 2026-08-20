@@ -700,7 +700,7 @@ function avatarColor(name: string): string {
 /* 2026-06-09 — Đặt lại mật khẩu */
 .btn-reset-pw {
   background: #fff;
-  border: 1px solid #1786be;
+  border: 1px solid #981820;
   color: #0e6491;
   font-weight: 600;
   padding: 8px 14px;
@@ -708,7 +708,7 @@ function avatarColor(name: string): string {
   cursor: pointer;
   font-size: 13px;
 }
-.btn-reset-pw:hover:not(:disabled) { background: #e4f1f8; }
+.btn-reset-pw:hover:not(:disabled) { background: #F7E9EA; }
 .btn-reset-pw:disabled { opacity: 0.5; cursor: not-allowed; }
 .reset-pw-result {
   background: #f0fdf4;
@@ -739,7 +739,7 @@ function avatarColor(name: string): string {
   background: #fff; border-radius: 14px; padding: 22px 24px; width: 420px; max-width: calc(100vw - 32px);
   box-shadow: 0 24px 60px -12px rgba(6, 34, 47, 0.4);
 }
-.ce-title { font-size: 17px; font-weight: 700; color: #0e445a; margin: 0 0 8px; }
+.ce-title { font-size: 17px; font-weight: 700; color: #7A131A; margin: 0 0 8px; }
 .ce-danger .ce-title { color: #b91c1c; }
 .ce-msg { font-size: 13.5px; color: #41454d; line-height: 1.5; margin: 0 0 14px; }
 .ce-zalo-opt {
@@ -755,7 +755,7 @@ function avatarColor(name: string): string {
 }
 .ce-cancel:hover:not(:disabled) { background: #e4e6e9; }
 .ce-ok {
-  background: #1786be; border: none; color: #fff; font-weight: 600;
+  background: #981820; border: none; color: #fff; font-weight: 600;
   padding: 9px 18px; border-radius: 8px; cursor: pointer; font-size: 13.5px;
 }
 .ce-ok:hover:not(:disabled) { background: #0e6491; }
@@ -767,7 +767,7 @@ function avatarColor(name: string): string {
 .handoff-opts { display: flex; gap: 14px; margin: 10px 0; flex-wrap: wrap; }
 .handoff-check { display: flex; align-items: center; gap: 5px; font-size: 13px; color: #41454d; cursor: pointer; }
 .btn-handoff {
-  background: #1786be; color: #fff; border: none; font-weight: 600;
+  background: #981820; color: #fff; border: none; font-weight: 600;
   padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px;
 }
 .btn-handoff:hover:not(:disabled) { background: #0e6491; }

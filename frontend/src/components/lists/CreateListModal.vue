@@ -664,8 +664,8 @@ watch(activeTab, (newTab, oldTab) => {
   box-sizing: border-box;
 }
 .clm-input:focus, .clm-textarea:focus, .clm-select:focus {
-  border-color: var(--brand, #1786be);
-  box-shadow: 0 0 0 3px var(--brand-soft, #e4f1f8);
+  border-color: var(--brand, #981820);
+  box-shadow: 0 0 0 3px var(--brand-soft, #F7E9EA);
 }
 .clm-input::placeholder, .clm-textarea::placeholder { color: var(--ink-4, #97a0b3); }
 .clm-textarea {
@@ -683,7 +683,7 @@ watch(activeTab, (newTab, oldTab) => {
 .clm-pill {
   display: inline-flex; align-items: center; gap: 3px;
   font-size: 10.5px; font-weight: 500;
-  background: var(--brand-soft, #e4f1f8); color: var(--brand-700, #0b5880);
+  background: var(--brand-soft, #F7E9EA); color: var(--brand-700, #631015);
   padding: 2px 8px; border-radius: 999px;
   text-transform: none; letter-spacing: 0;
   cursor: help;
@@ -700,7 +700,7 @@ watch(activeTab, (newTab, oldTab) => {
 }
 .clm-icon-btn:hover { background: var(--surface-3, #f1f4f9); }
 .clm-icon-btn.is-active {
-  background: var(--brand-soft, #e4f1f8); border-color: var(--brand, #1786be);
+  background: var(--brand-soft, #F7E9EA); border-color: var(--brand, #981820);
 }
 
 /* ── Tab nav ── */
@@ -721,8 +721,8 @@ watch(activeTab, (newTab, oldTab) => {
 }
 .clm-tab:hover { color: var(--ink, #141a24); }
 .clm-tab.is-active {
-  color: var(--brand, #1786be);
-  border-bottom-color: var(--brand, #1786be);
+  color: var(--brand, #981820);
+  border-bottom-color: var(--brand, #981820);
 }
 .clm-tab-ico { font-size: 14px; }
 
@@ -737,7 +737,7 @@ watch(activeTab, (newTab, oldTab) => {
   transition: background .14s, border-color .14s;
 }
 .clm-dropzone:hover, .clm-dropzone.is-dragover {
-  background: var(--brand-soft, #e4f1f8); border-color: var(--brand, #1786be);
+  background: var(--brand-soft, #F7E9EA); border-color: var(--brand, #981820);
 }
 .clm-dz-icon { font-size: 36px; margin-bottom: 8px; }
 .clm-dz-title { font-size: 14px; color: var(--ink, #141a24); margin-bottom: 4px; }
@@ -755,7 +755,7 @@ watch(activeTab, (newTab, oldTab) => {
 .clm-dot { color: var(--ink-4, #97a0b3); }
 .clm-link {
   background: transparent; border: none;
-  color: var(--brand, #1786be); cursor: pointer;
+  color: var(--brand, #981820); cursor: pointer;
   font-size: 13px; padding: 0; font-family: inherit;
   text-decoration: underline;
 }
@@ -825,10 +825,10 @@ watch(activeTab, (newTab, oldTab) => {
   transition: background .1s, border-color .1s;
 }
 .clm-btn--primary {
-  background: var(--brand, #1786be); border-color: var(--brand, #1786be); color: #fff;
+  background: var(--brand, #981820); border-color: var(--brand, #981820); color: #fff;
 }
 .clm-btn--primary:active:not(:disabled) {
-  background: var(--brand-700, #0b5880); border-color: var(--brand-700, #0b5880);
+  background: var(--brand-700, #631015); border-color: var(--brand-700, #631015);
 }
 .clm-btn--primary:disabled { opacity: .5; cursor: not-allowed; }
 .clm-btn--ghost {
@@ -846,8 +846,8 @@ watch(activeTab, (newTab, oldTab) => {
   gap: 6px; padding: 14px 8px; border: 1px solid var(--line, #e7eaf0); border-radius: 10px;
   background: var(--surface, #fff); cursor: pointer; transition: border-color .12s, background .12s;
 }
-.clm-platform-btn:hover { border-color: var(--brand-bright, #5bb8e5); background: var(--brand-softer, #f2f8fc); }
-.clm-platform-btn.is-active { border-color: var(--brand, #1786be); background: var(--brand-soft, #e4f1f8); }
+.clm-platform-btn:hover { border-color: var(--brand-bright, #80B040); background: var(--brand-softer, #FCF5F5); }
+.clm-platform-btn.is-active { border-color: var(--brand, #981820); background: var(--brand-soft, #F7E9EA); }
 .clm-platform-icon { font-size: 22px; }
 .clm-platform-label { font-size: 12px; font-weight: 500; color: var(--ink-2, #475066); text-align: center; }
 .clm-key-input {
@@ -855,7 +855,7 @@ watch(activeTab, (newTab, oldTab) => {
   text-transform: uppercase;
 }
 .clm-switch { display: flex; align-items: center; gap: 10px; cursor: pointer; }
-.clm-switch input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--brand, #1786be); flex-shrink: 0; }
+.clm-switch input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--brand, #981820); flex-shrink: 0; }
 .clm-switch-label { font-size: 13.5px; color: var(--ink-2, #475066); display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .clm-callout {
   background: var(--warning-soft, #fdf3e2); border-left: 3px solid var(--warning, #f5a524);

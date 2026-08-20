@@ -56,7 +56,7 @@ function isActive(to: string): boolean {
 }
 .ce-mkt-header {
   display: flex; align-items: center; gap: 8px; padding: 8px 10px 12px;
-  font-weight: 700; color: #0e445a; font-size: 15px;
+  font-weight: 700; color: #7A131A; font-size: 15px;
 }
 .ce-mkt-nav { display: flex; flex-direction: column; gap: 2px; }
 .ce-mkt-link {
@@ -64,7 +64,7 @@ function isActive(to: string): boolean {
   border-radius: 8px; color: #44505c; text-decoration: none; font-size: 14px;
 }
 .ce-mkt-link:hover { background: rgba(15, 111, 160, 0.08); }
-.ce-mkt-link.is-active { background: rgba(15, 111, 160, 0.14); color: #0e445a; font-weight: 600; }
+.ce-mkt-link.is-active { background: rgba(15, 111, 160, 0.14); color: #7A131A; font-weight: 600; }
 .ce-mkt-content { flex: 1 1 auto; min-width: 0; overflow: auto; }
 
 @media (max-width: 768px) {

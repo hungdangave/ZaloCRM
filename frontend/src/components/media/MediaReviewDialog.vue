@@ -8,7 +8,7 @@
     • Gắn / THÁO tag — LƯU NGAY khi bấm (không cần gửi). Autocomplete từ list tag kho.
       Ai cũng gắn được tag cho ảnh công khai (đúng chốt của Anh).
     • Nút Gửi (gửi mục này vào hội thoại đang mở) + Hủy.
-  Theme Atlas v2 của chat (Lucide icon, action #1786be — KHÔNG emoji).
+  Theme Atlas v2 của chat (Lucide icon, action #981820 — KHÔNG emoji).
 -->
 <template>
   <div class="mr-overlay" @click.self="$emit('close')">
@@ -231,7 +231,7 @@ onMounted(async () => {
 .mr-box {
   /* Theme Atlas v2 chuẩn (khớp MediaTabPanel/màn chat HS Holding). */
   --ink:#141a24; --body:#475066; --muted:#8b93a7; --hairline:#e7eaf0; --canvas:#fff;
-  --soft:#f1f4f9; --action:#1786be; --action-soft:#e4f1f8; --coral:#aa2d00;
+  --soft:#f1f4f9; --action:#981820; --action-soft:#F7E9EA; --coral:#aa2d00;
   width: 460px; max-width: 94vw; max-height: 88vh; background: var(--canvas); border-radius: 12px;
   box-shadow: 0 18px 56px rgba(15,23,42,.28); display: flex; flex-direction: column; overflow: hidden;
 }
@@ -250,7 +250,7 @@ onMounted(async () => {
 .mr-tags { border-top: 1px solid var(--hairline); padding-top: 12px; }
 .mr-tlabel { display: flex; align-items: center; gap: 5px; font-size: 11px; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); font-weight: 600; margin-bottom: 8px; }
 .mr-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 9px; min-height: 26px; align-items: center; }
-.mr-chip { display: inline-flex; align-items: center; gap: 3px; background: #e4f1f8; border: 1px solid #bfddec; color: var(--action); border-radius: 9999px; padding: 3px 5px 3px 11px; font-size: 12px; }
+.mr-chip { display: inline-flex; align-items: center; gap: 3px; background: #F7E9EA; border: 1px solid #bfddec; color: var(--action); border-radius: 9999px; padding: 3px 5px 3px 11px; font-size: 12px; }
 .mr-chip-x { border: none; background: none; cursor: pointer; color: var(--action); display: inline-flex; padding: 1px; border-radius: 9999px; }
 .mr-chip-x:hover { background: rgba(23,134,190,.18); }
 .mr-empty { font-size: 11.5px; color: var(--muted); }
@@ -267,7 +267,7 @@ onMounted(async () => {
 .mr-saving { font-size: 11.5px; color: var(--muted); margin-top: 6px; }
 .mr-foot { display: flex; gap: 8px; align-items: center; padding: 12px 16px; border-top: 1px solid var(--hairline); background: var(--soft); }
 .mr-cancel { border: 1px solid var(--hairline); background: var(--canvas); color: var(--muted); border-radius: 8px; padding: 8px 16px; font-size: 13px; cursor: pointer; min-height: 36px; }
-/* Nút Gửi: màu hành động chuẩn HS (action #1786be) — nổi + đúng nhận diện theme. */
+/* Nút Gửi: màu hành động chuẩn HS (action #981820) — nổi + đúng nhận diện theme. */
 .mr-send { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: none; background: var(--action); color: #fff; border-radius: 8px; padding: 8px; font-size: 13.5px; font-weight: 600; cursor: pointer; min-height: 36px; }
 .mr-send:hover { background: #1370a0; }
 .mr-send:disabled, .mr-cancel:disabled, .mr-chip-x:disabled { opacity: .55; cursor: default; }

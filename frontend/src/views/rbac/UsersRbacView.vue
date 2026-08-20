@@ -645,17 +645,17 @@ function onboardingTooltip(s: OnboardingSummary): string {
 }
 .status-chip:hover { background: #e4e6e9; }
 .status-chip.active {
-  background: var(--smax-primary-soft, #e4f1f8);
-  border-color: var(--smax-primary, #1786be);
-  color: var(--smax-primary, #1786be);
+  background: var(--smax-primary-soft, #F7E9EA);
+  border-color: var(--smax-primary, #981820);
+  color: var(--smax-primary, #981820);
   font-weight: 600;
 }
-.status-chip:focus-visible { outline: 2px solid var(--smax-primary, #1786be); outline-offset: 1px; }
+.status-chip:focus-visible { outline: 2px solid var(--smax-primary, #981820); outline-offset: 1px; }
 
 /* 2026-06-09 — Thao tác hàng loạt */
 .bulk-bar {
   display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-  background: #e4f1f8; border: 1px solid #1786be; border-radius: 10px;
+  background: #F7E9EA; border: 1px solid #981820; border-radius: 10px;
   padding: 10px 14px; margin-bottom: 12px;
 }
 .bulk-count { font-weight: 600; color: #0e6491; font-size: 13px; }
@@ -664,7 +664,7 @@ function onboardingTooltip(s: OnboardingSummary): string {
   background: #fff; color: #2b2f36;
 }
 .bulk-apply {
-  background: #1786be; color: #fff; border: none; font-weight: 600;
+  background: #981820; color: #fff; border: none; font-weight: 600;
   padding: 7px 16px; border-radius: 8px; cursor: pointer; font-size: 13px;
 }
 .bulk-apply:hover:not(:disabled) { background: #0e6491; }

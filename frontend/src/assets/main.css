@@ -84,7 +84,7 @@ html, body {
 
 /* ════════ Legacy dark theme (kept for fallback) ════════ */
 .v-theme--legacy-dark {
-  --navy-deep: #0A192F;
+  --navy-deep: #440B0E;
   --navy-light: #112240;
   --cyan-electric: #00F2FF;
   --card-glass: rgba(17, 34, 64, 0.7);
@@ -93,7 +93,7 @@ html, body {
 }
 
 .v-theme--legacy-dark.liquid-bg {
-  background: linear-gradient(-45deg, #0A192F, #112240, #004d7a, #008fb3) !important;
+  background: linear-gradient(-45deg, #440B0E, #112240, #004d7a, #008fb3) !important;
   background-size: 400% 400% !important;
   animation: flow-bg 15s ease infinite;
 }

@@ -1553,16 +1553,16 @@ watch(
 }
 .c-icon-btn:hover { background: #F4F4F7; }
 .c-icon-btn.active {
-  background: var(--smax-primary-soft, #e4f1f8);
-  box-shadow: inset 3px 0 0 var(--smax-primary, #1786be);
+  background: var(--smax-primary-soft, #F7E9EA);
+  box-shadow: inset 3px 0 0 var(--smax-primary, #981820);
 }
-.c-icon-btn.active .ic { color: var(--smax-primary, #1786be); }
+.c-icon-btn.active .ic { color: var(--smax-primary, #981820); }
 .c-icon-btn.open {
-  background: var(--smax-primary, #1786be);
+  background: var(--smax-primary, #981820);
   color: white;
 }
 .c-icon-btn.open .ic { color: #fff; }
-.c-icon-btn:focus-visible { outline: 2px solid var(--smax-primary, #1786be); outline-offset: 1px; }
+.c-icon-btn:focus-visible { outline: 2px solid var(--smax-primary, #981820); outline-offset: 1px; }
 /* Lucide SVG: màu mặc định xám, active/open override ở trên (icon emoji cũ → SVG 2026-06-06). */
 .c-icon-btn .ic { line-height: 1; color: #6b7488; }
 .c-icon-btn .badge {
@@ -2191,7 +2191,7 @@ watch(
 }
 .stage-chip:hover { border-color: #D4D6DB; }
 /* 2026-06-08 — màu border/text lấy từ Status.color qua inline style; selected mặc định khi không có color. */
-.stage-chip.selected { background: var(--smax-primary-soft, #e4f1f8); border-color: var(--smax-primary, #1786be); color: var(--smax-primary, #1786be); }
+.stage-chip.selected { background: var(--smax-primary-soft, #F7E9EA); border-color: var(--smax-primary, #981820); color: var(--smax-primary, #981820); }
 .stage-chip .st-dot { width: 7px; height: 7px; border-radius: 999px; flex-shrink: 0; }
 .stage-chip:focus-visible { outline: 2px solid #5E6AD2; outline-offset: 1px; }
 

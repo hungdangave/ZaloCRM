@@ -4,7 +4,7 @@
 .rpt-scope{
   --rk-ink:#1f2d3d; --rk-body:#33414f; --rk-muted:#6b7785; --rk-faint:#97a0ac;
   --rk-bg:#f5f7fa; --rk-surface:#fff; --rk-surface-2:#f8fafc; --rk-hairline:#e6e9ef;
-  --rk-brand:var(--brand,#1786be); --rk-brand-700:var(--brand-700,#0b5880); --rk-brand-soft:var(--brand-soft,#e4f1f8); --rk-brand-softer:var(--brand-softer,#f2f8fc); --rk-brand-bright:#5bb8e5;
+  --rk-brand:var(--brand,#981820); --rk-brand-700:var(--brand-700,#631015); --rk-brand-soft:var(--brand-soft,#F7E9EA); --rk-brand-softer:var(--brand-softer,#FCF5F5); --rk-brand-bright:#80B040;
   --rk-ok:#12b76a; --rk-ok-soft:#e7f7ef; --rk-warn:#f79009; --rk-warn-soft:#fff6e8; --rk-danger:#f04438; --rk-danger-soft:#fdeceb;
   font-family:Inter,system-ui,-apple-system,sans-serif; font-size:13.5px; color:var(--rk-body);
   -webkit-font-smoothing:antialiased; letter-spacing:-.005em;
@@ -113,5 +113,5 @@
 .rpt-subnav{flex:none;display:flex;gap:4px;overflow-x:auto;background:#fff;border-bottom:1px solid #e6e9ef;padding:0 18px}
 .rpt-shell>.rpt-scope{flex:1 1 auto;min-height:0;overflow-y:auto}
 .rpt-subnav a{display:inline-flex;align-items:center;gap:7px;padding:13px 14px;font-size:13px;font-weight:600;color:#6b7785;text-decoration:none;border-bottom:2px solid transparent;white-space:nowrap}
-.rpt-subnav a:hover{color:var(--brand-700,#0b5880)}
-.rpt-subnav a.router-link-active{color:var(--brand,#1786be);border-bottom-color:var(--brand,#1786be)}
+.rpt-subnav a:hover{color:var(--brand-700,#631015)}
+.rpt-subnav a.router-link-active{color:var(--brand,#981820);border-bottom-color:var(--brand,#981820)}

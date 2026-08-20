@@ -25,13 +25,18 @@
 
 /* ---------- 1. Tokens ---------- */
 :root {
-  /* Brand — HS Holding (metallic sky-blue on teal-navy) */
-  --brand:        #1786be;   /* primary action */
-  --brand-600:    #0f6fa0;   /* hover */
-  --brand-700:    #0b5880;   /* active / deep */
-  --brand-soft:   #e4f1f8;
-  --brand-softer: #f2f8fc;
-  --brand-bright: #5bb8e5;   /* highlight from monogram */
+  /* ═══ Brand — AVE GROUP (20/08/2026) ══════════════════════════════════════
+     Lấy thẳng từ logo AVE: ĐỎ #981820 (chiếm ~64% pixel logo) + XANH LÁ #80B040.
+     Đỏ làm màu chính vì đó là màu trội của thương hiệu, và tương phản với chữ
+     trắng đạt 8.45 — rất dễ đọc. Xanh lá giữ vai trò điểm nhấn (màu thứ 2 của logo).
+     ⚠️ Màu BÁO LỖI để riêng #f04438 (đỏ cam TƯƠI) — cố ý khác hẳn đỏ thương hiệu
+     (đỏ mận ĐẬM) để nút "xoá/cảnh báo" không lẫn với nút thường. */
+  --brand:        #981820;   /* nút chính / link — tương phản chữ trắng 8.45 ✅ */
+  --brand-600:    #7A131A;   /* hover  — 10.85 ✅ */
+  --brand-700:    #631015;   /* active — 13.00 ✅ */
+  --brand-soft:   #F7E9EA;
+  --brand-softer: #FCF5F5;
+  --brand-bright: #80B040;   /* xanh lá AVE — điểm nhấn, chấm trạng thái */
 
   /* Cool neutrals */
   --ink:          #141a24;   /* primary text */
@@ -44,18 +49,18 @@
   --surface-2:    #f7f9fc;   /* page background */
   --surface-3:    #f1f4f9;   /* inset / hover */
 
-  /* Brand teal-navy shell (HS signature background) */
-  --shell:        #0c3b4f;
-  --shell-2:      #114a61;
+  /* Vỏ nền đỏ đậm AVE (thanh điều hướng + banner đăng nhập) */
+  --shell:        #631015;
+  --shell-2:      #7A131A;
   --shell-line:   rgba(255,255,255,.10);
-  --shell-ink:    #cfe2ec;
-  --shell-ink-2:  #7fa6b8;
+  --shell-ink:    #F0DCDD;
+  --shell-ink-2:  #C79A9C;
 
   /* Semantic */
   --success:      #12b76a;   --success-soft: #e7f7ef;
   --warning:      #f5a524;   --warning-soft: #fdf3e2;
   --error:        #f04438;   --error-soft:   #fdeceb;
-  --info:         #1786be;   --info-soft:    #e4f1f8;
+  --info:         #2e88e5;   --info-soft:    #e9f2fd;   /* giữ XANH DƯƠNG: 'thông tin' phải khác màu thương hiệu */
   --female:       #ec4899;
   --male:         #2e88e5;
 
@@ -88,9 +93,9 @@
   --mono: "Roboto Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
   /* HS Holding teal-navy nav gradient */
-  --nav-grad-a: #0e445a;
-  --nav-grad-b: #06222f;
-  --nav-accent: #5bb8e5;
+  --nav-grad-a: #7A131A;
+  --nav-grad-b: #440B0E;
+  --nav-accent: #80B040;
 
   /* Layout */
   --nav-h: 48px;
@@ -216,7 +221,7 @@ input, select, textarea { font-family: inherit; }
   position: relative; border-radius: 50%; flex: none;
   display: inline-flex; align-items: center; justify-content: center;
   color: #fff; font-weight: 700; overflow: visible;
-  background: linear-gradient(135deg, #4fb0e0, #1786be);
+  background: linear-gradient(135deg, #4fb0e0, #981820);
 }
 .av img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
 .av.group { background: linear-gradient(135deg, #ff8a65, #f4511e); }
@@ -331,7 +336,7 @@ input, select, textarea { font-family: inherit; }
   .nav-ico .badge { position: absolute; top: 4px; right: 4px; min-width: 16px; height: 16px; padding: 0 4px;
     background: var(--error); color: #fff; border-radius: var(--r-pill); font-size: 10px; font-weight: 700;
     display: flex; align-items: center; justify-content: center; border: 2px solid var(--shell); }
-  .nav-av { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg,#4fb0e0,#0f6fa0);
+  .nav-av { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg,#4fb0e0,#7A131A);
     display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 12.5px; border: 1px solid rgba(255,255,255,.15); }
 
   /* Screen container */
@@ -749,7 +754,7 @@ input, select, textarea { font-family: inherit; }
   /* ===== Đăng nhập ===== */
   #s-login { padding: 0; }
   .login-wrap { display: grid; grid-template-columns: 1.1fr 1fr; height: 100%; }
-  .login-brand { background: linear-gradient(150deg, #0e445a, #06222f 70%); position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; padding: 56px 56px 44px; }
+  .login-brand { background: linear-gradient(150deg, #7A131A, #440B0E 70%); position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; padding: 56px 56px 44px; }
   .login-brand::before { content:""; position:absolute; width:520px; height:520px; border-radius:50%; background: radial-gradient(circle, rgba(91,184,229,.22), transparent 65%); top:-120px; right:-120px; }
   .login-brand::after { content:""; position:absolute; width:380px; height:380px; border-radius:50%; background: radial-gradient(circle, rgba(91,184,229,.12), transparent 60%); bottom:-100px; left:-60px; }
   .lb-logo { display: flex; align-items: center; gap: 16px; position: relative; z-index: 1; }

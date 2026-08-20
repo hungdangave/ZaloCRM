@@ -238,7 +238,7 @@ onMounted(async () => { await loadNicks(); await reload(); });
 .sp-overlay { position:fixed; inset:0; z-index:120; background:rgba(15,23,42,.32); display:flex; align-items:center; justify-content:center; }
 .sp-box {
   --ink:#181d26; --muted:#41454d; --hairline:#dddddd; --canvas:#fff; --soft:#f8fafc; --coral:#aa2d00; --forest:#006400;
-  --action:#1786be;
+  --action:#981820;
   width:440px; max-width:94vw; max-height:74vh; background:var(--canvas); border:1px solid var(--hairline);
   border-radius:12px; box-shadow:0 16px 48px rgba(15,23,42,.22); display:flex; flex-direction:column; overflow:hidden;
   position:relative;
@@ -266,7 +266,7 @@ onMounted(async () => { await loadNicks(); await reload(); });
 .sp-sending { font-size:11px; color:var(--muted); }
 .sp-empty { padding:28px 16px; text-align:center; font-size:13px; color:var(--muted); }
 
-/* ── Ô xác nhận "xem lại trước khi gửi" + gắn tag (2026-06-15) — Atlas v2, action #1786be ── */
+/* ── Ô xác nhận "xem lại trước khi gửi" + gắn tag (2026-06-15) — Atlas v2, action #981820 ── */
 .sp-confirm { position:absolute; left:0; right:0; bottom:0; background:var(--canvas); border-top:2px solid var(--action);
   box-shadow:0 -8px 24px rgba(15,23,42,.14); padding:14px 18px; border-radius:0 0 12px 12px; }
 .spc-head { font-size:13.5px; color:var(--ink); margin-bottom:11px; }

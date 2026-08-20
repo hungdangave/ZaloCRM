@@ -140,7 +140,7 @@ onMounted(load);
 <style scoped>
 .al-wrap { padding: 20px 24px; max-width: 1366px; }
 .al-head { margin-bottom: 16px; }
-.al-title { font-size: 22px; font-weight: 700; color: #0e445a; margin: 0 0 4px; }
+.al-title { font-size: 22px; font-weight: 700; color: #7A131A; margin: 0 0 4px; }
 .al-sub { font-size: 13.5px; color: #6b7280; margin: 0; }
 .al-toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
 .al-chips { display: inline-flex; gap: 6px; flex-wrap: wrap; }
@@ -149,7 +149,7 @@ onMounted(load);
   border: 1px solid transparent; padding: 6px 13px; border-radius: 9999px; cursor: pointer;
 }
 .al-chip:hover { background: #e4e6e9; }
-.al-chip.active { background: #e4f1f8; border-color: #1786be; color: #1786be; font-weight: 600; }
+.al-chip.active { background: #F7E9EA; border-color: #981820; color: #981820; font-weight: 600; }
 .al-count { font-size: 12px; color: #6b7280; margin-left: auto; }
 .al-loading, .al-empty { text-align: center; padding: 48px; color: #6b7280; }
 .al-empty-icon { font-size: 36px; display: block; margin-bottom: 8px; }
@@ -164,7 +164,7 @@ onMounted(load);
 .al-time { color: #6b7280; white-space: nowrap; }
 .al-actor { font-weight: 600; }
 .al-badge { font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 6px; white-space: nowrap; }
-.b-handoff { background: #e4f1f8; color: #0e6491; }
+.b-handoff { background: #F7E9EA; color: #0e6491; }
 .b-reset { background: #fef3c7; color: #92400e; }
 .b-danger { background: #fee2e2; color: #b91c1c; }
 .b-default { background: #f0f1f3; color: #41454d; }

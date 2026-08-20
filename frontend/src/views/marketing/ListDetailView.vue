@@ -1268,7 +1268,7 @@ const NICK_GRADIENTS: [string, string][] = [
   ['#EC4899', '#BE185D'],
   ['#3B82F6', '#1D4ED8'],
   ['#F59E0B', '#D97706'],
-  ['#5bb8e5', '#1786be'],
+  ['#80B040', '#981820'],
   ['#14B8A6', '#0F766E'],
 ];
 function hashIdx(s: string, mod: number): number {

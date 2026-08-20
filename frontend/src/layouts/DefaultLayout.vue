@@ -390,7 +390,7 @@ function logout() {
 
 /* HS Holding shell — teal-navy gradient nav (redesign 2026-06-05, đảo lock Variant A sáng) */
 .smax-topnav {
-  background: linear-gradient(180deg, var(--nav-grad-a, #0e445a) 0%, var(--nav-grad-b, #06222f) 100%);
+  background: linear-gradient(180deg, var(--nav-grad-a, #7A131A) 0%, var(--nav-grad-b, #440B0E) 100%);
   color: rgba(255, 255, 255, 0.85);
   height: 48px;
   display: flex; align-items: center;
@@ -408,14 +408,14 @@ function logout() {
 .hs-bbox {
   width: 34px; height: 34px; border-radius: 9px;
   display: flex; align-items: center; justify-content: center;
-  background: linear-gradient(135deg, #1786be 0%, #0b5880 100%);
+  background: linear-gradient(135deg, #981820 0%, #631015 100%);
   box-shadow: inset 0 1px 1px rgba(255,255,255,.18), 0 1px 2px rgba(0,0,0,.25);
   flex: none;
 }
 .hs-bbox img { width: 24px; height: auto; display: block; filter: drop-shadow(0 1px 1px rgba(0,0,0,.3)); }
 .hs-bwm { display: flex; flex-direction: column; line-height: 1.08; white-space: nowrap; }
 .hs-b1 { font-size: 13.5px; font-weight: 800; color: #fff; letter-spacing: .01em; }
-.hs-b2 { font-size: 9.5px; font-weight: 700; letter-spacing: .26em; color: var(--nav-accent, #5bb8e5); text-transform: uppercase; }
+.hs-b2 { font-size: 9.5px; font-weight: 700; letter-spacing: .26em; color: var(--nav-accent, #80B040); text-transform: uppercase; }
 
 .nav-tabs {
   display: flex; align-items: center; gap: 2px;
@@ -443,9 +443,9 @@ function logout() {
   background: rgba(91, 184, 229, 0.16);
   color: #fff;
   font-weight: 700;
-  box-shadow: inset 0 -2px 0 var(--nav-accent, #5bb8e5);
+  box-shadow: inset 0 -2px 0 var(--nav-accent, #80B040);
 }
-.nav-tab.active .ic-svg { color: var(--nav-accent, #5bb8e5); }
+.nav-tab.active .ic-svg { color: var(--nav-accent, #80B040); }
 
 /* HD compact — chỉ kick in khi viewport < 1280 (rất hiếm với HD-first target) */
 @media (max-width: 1280px) {

@@ -2975,7 +2975,7 @@ watch(() => props.editingMessage?.id, async (id) => {
   align-items: center;
   justify-content: center;
   background: rgba(248, 250, 252, 0.72);
-  border: 2px dashed var(--smax-primary, #1786be);
+  border: 2px dashed var(--smax-primary, #981820);
   pointer-events: none;
 }
 .drop-card {
@@ -3174,7 +3174,7 @@ watch(() => props.editingMessage?.id, async (id) => {
 .ch-avatar-wrap.clickable { cursor: pointer; }
 .ch-avatar-wrap.clickable:hover { transform: scale(1.05); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18); }
 .ch-name.clickable { cursor: pointer; transition: color 0.12s ease; }
-.ch-name.clickable:hover { color: var(--smax-primary, #1786be); }
+.ch-name.clickable:hover { color: var(--smax-primary, #981820); }
 
 .ch-info {
   flex: 1; min-width: 0;
@@ -3933,7 +3933,7 @@ watch(() => props.editingMessage?.id, async (id) => {
 }
 .icon-tool.active {
   background: var(--smax-primary-soft, #e3f2fd);
-  color: var(--smax-primary, #1786be);
+  color: var(--smax-primary, #981820);
 }
 .icon-tool.spacer-after {
   border-right: 1px solid var(--smax-grey-200);
@@ -4052,7 +4052,7 @@ watch(() => props.editingMessage?.id, async (id) => {
 }
 .zlbl-trigger:hover {
   background: var(--smax-primary-soft, #e3f2fd);
-  border-color: var(--smax-primary, #1786be);
+  border-color: var(--smax-primary, #981820);
   box-shadow: 0 1px 3px rgba(0,0,0,0.06);
 }
 .zlbl-icon { flex-shrink: 0; display: block; }
@@ -4087,7 +4087,7 @@ watch(() => props.editingMessage?.id, async (id) => {
 .zlbl-inline-sync {
   margin-top: 8px;
   background: var(--smax-primary-soft, #e3f2fd);
-  color: var(--smax-primary, #1786be);
+  color: var(--smax-primary, #981820);
   border: none;
   font-size: 12px;
   font-weight: 600;
@@ -4134,7 +4134,7 @@ watch(() => props.editingMessage?.id, async (id) => {
 }
 .zlbl-option.active .zlbl-name { font-weight: 600; }
 .zlbl-check {
-  color: var(--smax-primary, #1786be);
+  color: var(--smax-primary, #981820);
   font-size: 14px;
   font-weight: 700;
   flex-shrink: 0;

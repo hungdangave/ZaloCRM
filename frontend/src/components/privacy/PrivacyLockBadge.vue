@@ -177,7 +177,7 @@ async function onClick() {
 }
 /* Mở khoá — teal grad (Atlas v2 teal-navy-cyan) */
 .lb-badge.unlocked {
-  background: linear-gradient(135deg, #0F6EA3 0%, #1786BE 100%);
+  background: linear-gradient(135deg, #0F6EA3 0%, #981820 100%);
   color: #fff;
   border-color: #0F6EA3;
   box-shadow: 0 1px 4px rgba(15, 110, 163, 0.3);
@@ -223,7 +223,7 @@ async function onClick() {
 }
 
 .lb-badge:focus-visible, .lb-clock:focus-visible {
-  outline: 2px solid #1786BE;
+  outline: 2px solid #981820;
   outline-offset: 2px;
 }
 </style>
