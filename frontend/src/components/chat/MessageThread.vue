@@ -253,8 +253,8 @@
             </button>
             <button
               class="btn-action btn-cancel-invite fr-hover-pop"
-              title="Thu hồi lời mời kết bạn"
-              :disabled="actionLoading"
+              :title="lyDoKhoaThaoTac || 'Thu hồi lời mời kết bạn'"
+              :disabled="actionLoading || !coQuyenNick"
               @click="onCancelInvite"
             >
               <span class="ic"><Undo2Icon :size="14" :stroke-width="2" /></span> Thu hồi
@@ -264,16 +264,16 @@
           <template v-else-if="friendshipState === 'pending_received'">
             <button
               class="btn-action btn-accept-friend"
-              :title="pendingReceivedTooltip"
-              :disabled="actionLoading"
+              :title="lyDoKhoaThaoTac || pendingReceivedTooltip"
+              :disabled="actionLoading || !coQuyenNick"
               @click="onAcceptInvite"
             >
               <span class="ic"><HandIcon :size="14" :stroke-width="2" /></span> Chấp nhận <span class="sub-meta">{{ pendingDaysLabel }}</span>
             </button>
             <button
               class="btn-action btn-reject-invite"
-              title="Từ chối lời mời kết bạn"
-              :disabled="actionLoading"
+              :title="lyDoKhoaThaoTac || 'Từ chối lời mời kết bạn'"
+              :disabled="actionLoading || !coQuyenNick"
               @click="onRejectInvite"
             >
               <span class="ic"><UserXIcon :size="14" :stroke-width="2" /></span> Từ chối
@@ -283,8 +283,8 @@
           <button
             v-else-if="friendshipState === 'ghost'"
             class="btn-action btn-add-friend"
-            title="KH đã huỷ kết bạn. Gửi lời mời lại?"
-            :disabled="actionLoading"
+            :title="lyDoKhoaThaoTac || 'KH đã huỷ kết bạn. Gửi lời mời lại?'"
+            :disabled="actionLoading || !coQuyenNick"
             @click="onOpenInviteDialog"
           >
             <span class="ic"><RotateCcwIcon :size="14" :stroke-width="2" /></span> Mời lại
@@ -292,8 +292,8 @@
           <button
             v-else-if="conversation.threadType === 'user'"
             class="btn-action btn-add-friend"
-            title="Gửi lời mời kết bạn"
-            :disabled="actionLoading"
+            :title="lyDoKhoaThaoTac || 'Gửi lời mời kết bạn'"
+            :disabled="actionLoading || !coQuyenNick"
             @click="onOpenInviteDialog"
           >
             <span class="ic"><UserPlusIcon :size="14" :stroke-width="2" /></span> Kết bạn
@@ -1050,6 +1050,11 @@ const props = defineProps<{
   aiSuggestionLoading: boolean;
   aiSuggestionError: string;
   allConversations?: Conversation[];
+  /** Danh sách id nick NGƯỜI DÙNG ĐƯỢC PHÉP dùng (từ /zalo-accounts — endpoint đã lọc
+   *  sẵn theo quyền). Dùng để KHOÁ nút thao tác trên nick không có quyền, thay vì để
+   *  nhân viên bấm rồi mới bị máy chủ đá ra 403. Không truyền → không khoá (máy chủ
+   *  vẫn là chốt chặn thật). */
+  accessibleAccountIds?: string[];
   replyingTo?: Message | null;
   editingMessage?: Message | null;
   typingUsers?: { userId: string; userName: string }[];
@@ -2073,6 +2078,23 @@ const pendingSentTooltip = computed(() => {
 const actionLoading = ref(false);
 const showInviteDialog = ref(false);
 
+// ── Có quyền dùng nick của hội thoại này không (AN AN 20/08/2026) ───────────
+// BỆNH: nút "Kết bạn" hiện ra BẤT KỂ có quyền hay không. Nhân viên bấm, soạn xong lời
+// mời, bấm Gửi → máy chủ mới trả 403 "Không có quyền truy cập tài khoản Zalo này".
+// Hậu quả thật: cả đội tưởng KHÁCH CHẶN kết bạn, báo lên thành "hệ thống lỗi", và mất
+// mấy ngày mới lần ra. Một cái nút hiện sai chỗ đẻ ra một chẩn đoán sai.
+// → Khoá nút ngay từ đầu + nói rõ LÝ DO.
+const coQuyenNick = computed(() => {
+  const ids = props.accessibleAccountIds;
+  if (!ids) return true;                       // không truyền → không khoá (máy chủ vẫn chặn)
+  const nick = props.conversation?.zaloAccount?.id;
+  if (!nick) return true;
+  return ids.includes(nick);
+});
+const lyDoKhoaThaoTac = computed(() =>
+  coQuyenNick.value ? '' : 'Bạn chưa được cấp quyền dùng nick này — nhờ quản trị cấp quyền.',
+);
+
 function getActionContext() {
   const accountId = props.conversation?.zaloAccount?.id;
   const uid = props.conversation?.externalThreadId || props.conversation?.contact?.zaloUid;
@@ -2080,6 +2102,7 @@ function getActionContext() {
 }
 
 function onOpenInviteDialog() {
+  if (!coQuyenNick.value) { toast.error(lyDoKhoaThaoTac.value); return; }
   const { accountId, uid } = getActionContext();
   if (!accountId || !uid) {
     toast.error('Thiếu thông tin nick hoặc KH');
@@ -2089,6 +2112,7 @@ function onOpenInviteDialog() {
 }
 
 async function onSendInviteSubmit(message: string) {
+  if (!coQuyenNick.value) { toast.error(lyDoKhoaThaoTac.value); return; }
   const { accountId, uid } = getActionContext();
   if (!accountId || !uid) {
     toast.error('Thiếu thông tin nick hoặc KH');

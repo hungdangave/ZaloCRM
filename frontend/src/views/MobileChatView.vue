@@ -53,7 +53,10 @@ import ConversationList from '@/components/chat/ConversationList.vue';
 import MessageThread from '@/components/chat/MessageThread.vue';
 import { useChat } from '@/composables/use-chat';
 import { useOfflineQueue } from '@/composables/use-offline-queue';
-
+// Ghi chú (20/08): màn mobile KHÔNG nạp danh sách nick nên không truyền
+// `accessible-account-ids`. MessageThread hiểu thiếu prop = không khoá nút — máy chủ
+// vẫn chặn thật bằng 403. Chấp nhận: bản mobile hiếm dùng, và thà không khoá còn hơn
+// khoá nhầm. Khi nào mobile nạp danh sách nick thì truyền vào là xong.
 const {
   conversations, selectedConvId, selectedConv, messages,
   loadingConvs, loadingMoreConvs, hasMoreConvs, convTotal, loadMoreConversations,

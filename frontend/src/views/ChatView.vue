@@ -75,6 +75,7 @@
 
     <!-- COL 3: message thread (giữ nguyên — handles header/messages/input bên trong) -->
     <MessageThread
+        :accessible-account-ids="accessibleAccountIds"
       :conversation="selectedConv"
       :messages="messages"
       :loading="loadingMsgs"
@@ -289,6 +290,8 @@ const currentAccount = computed(() => {
   if (!accountFilter.value) return null;
   return zaloAccounts.value.find(a => a.id === accountFilter.value) || null;
 });
+// Chỉ gồm nick người dùng ĐƯỢC PHÉP dùng — endpoint /zalo-accounts đã lọc sẵn theo quyền.
+const accessibleAccountIds = computed(() => (zaloAccounts.value || []).map(a => a.id));
 const accountList = computed(() =>
   (zaloAccounts.value || []).map(a => ({
     id: a.id,
