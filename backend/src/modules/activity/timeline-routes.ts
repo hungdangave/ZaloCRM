@@ -20,6 +20,7 @@ import { prisma } from '../../shared/database/prisma-client.js';
 import { authMiddleware } from '../auth/auth-middleware.js';
 import { logger } from '../../shared/utils/logger.js';
 import { assertContactVisible } from '../contacts/contact-scope.js';
+import { chanXuatTep, ghiSoXuatTep } from '../../shared/security/export-guard.js';
 
 type TimelineItem =
   | { type: 'note'; createdAt: Date; data: unknown }
@@ -256,6 +257,9 @@ export async function timelineRoutes(app: FastifyInstance): Promise<void> {
     };
   }>, reply: FastifyReply) => {
     try {
+      // 20/08: trước đây lối này KHÔNG có rào nào — ai đăng nhập cũng xuất được lịch sử
+      // của bất kỳ khách nào, và không để lại dấu vết. Nay chỉ chủ/quản trị được xuất.
+      if (!(await chanXuatTep(request, reply, 'timeline_khach'))) return;
       const user = request.user!;
       const { customerId, from, to, categories } = request.query;
       const format = (request.query.format || 'csv').toLowerCase();
@@ -311,6 +315,11 @@ export async function timelineRoutes(app: FastifyInstance): Promise<void> {
         ].map(escape).join(','));
       }
       const csv = '﻿' + lines.join('\n');  // BOM cho Excel hiểu UTF-8
+
+      await ghiSoXuatTep(request, 'timeline_khach', {
+        soDong: rows.length,
+        chiTiet: { customerId, from: from ?? null, to: to ?? null },
+      });
 
       const filename = `timeline-${contact.fullName || customerId}-${new Date().toISOString().slice(0, 10)}.csv`;
       reply

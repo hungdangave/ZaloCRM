@@ -17,6 +17,7 @@ import {
 } from './excel-sheet-builders.js';
 import { getContactScope } from '../contacts/contact-scope.js';
 import { getZaloScope } from '../zalo/zalo-scope.js';
+import { ghiSoXuatTep } from '../../shared/security/export-guard.js';
 
 type QueryParams = Record<string, string>;
 
@@ -195,6 +196,9 @@ export async function reportRoutes(app: FastifyInstance): Promise<void> {
       }
 
       const buffer = await workbook.xlsx.writeBuffer();
+      // 20/08: lối này đã chặn member, nhưng trước đây KHÔNG ghi sổ — chủ/quản trị xuất
+      // cả tệp khách mà không để lại vết. Nay mọi lần xuất đều vào nhật ký.
+      await ghiSoXuatTep(request, `bao_cao_${type}`, { chiTiet: { from, to } });
       reply.header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
       reply.header('Content-Disposition', `attachment; filename=${type}-report.xlsx`);
       return reply.send(Buffer.from(buffer as ArrayBuffer));

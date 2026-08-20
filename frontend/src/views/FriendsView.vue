@@ -36,7 +36,6 @@
             placeholder="🔍 Tìm KH theo tên / SĐT / nick Zalo..."
             @input="debouncedFetch"
           />
-          <button class="btn" title="Xuất CSV (chưa làm)" @click="onExportCsv">⬇ Xuất CSV</button>
           <v-menu :close-on-content-click="false">
             <template #activator="{ props: act }">
               <button v-bind="act" class="btn" title="Bật/tắt cột tuỳ chọn">⚙ Cột</button>
@@ -256,11 +255,6 @@ function toggleColumn(key: OptionalColKey) {
   try { localStorage.setItem(LS_KEY_COLS, JSON.stringify(visibleCols.value)); } catch { /* ignore */ }
 }
 
-function onExportCsv() {
-  // Placeholder: chưa làm. Defer phase sau, tránh button placeholder không phản hồi.
-  console.warn('[FriendsView] CSV export chưa implement');
-}
-
 const searchInput = ref('');
 const pagination = reactive({ page: 1, limit: 25 });
 const selected = ref<Set<string>>(new Set());
@@ -451,7 +445,9 @@ function onBulkChangeStatus() {
   console.log('[bulk] change status', [...selected.value]);
 }
 function onBulkExport() {
-  console.log('[bulk] export', [...selected.value]);
+  // 20/08: xuất tệp khách đã bị khoá về phía máy chủ (chỉ chủ/quản trị, có ghi nhật ký).
+  // Giữ hàm để không vỡ chỗ gọi, nhưng báo rõ thay vì im lặng như trước.
+  toast.error('Xuất danh sách khách đã bị khoá. Liên hệ quản trị nếu thật sự cần.');
 }
 
 // ─── Smart hints ───
