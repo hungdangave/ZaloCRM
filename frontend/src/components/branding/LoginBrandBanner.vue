@@ -28,7 +28,7 @@ const props = defineProps<{
   copyright?: string | null;
 }>();
 
-const DEFAULT_LOGO = '/brand/hs-monogram.png';
+const DEFAULT_LOGO = '/brand/ave-mark-trang.png';
 const logo = ref(props.logoUrl || DEFAULT_LOGO);
 
 // Logo cấu hình hỏng (404/URL sai) → fallback ảnh mặc định.

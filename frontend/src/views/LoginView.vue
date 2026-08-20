@@ -97,12 +97,12 @@ const authStore = useAuthStore();
 // ── Branding hiển thị (mặc định = giá trị hardcode HS Holding) ────────────────
 // Login chạy pre-auth: render mặc định NGAY, fetch org-branding xong mới thay vào
 // (D4-A). Nếu endpoint lỗi/chậm/chưa có org → giữ mặc định, login không bị chặn.
-const DEFAULT_LOGO = '/brand/hs-monogram.png';
+const DEFAULT_LOGO = '/brand/ave-mark-trang.png';
 const DEFAULT_PLACEHOLDER = `admin@hs.com hoặc ${SAMPLE_PHONE}`;
 const brandLogo = ref(DEFAULT_LOGO);
 const brandName = ref('AVE Factory CRM');
 const brandSlogan = ref('Bền vững · Trường tồn');
-const brandCopyright = ref(`© ${new Date().getFullYear()} HS Holding`);
+const brandCopyright = ref(`© ${new Date().getFullYear()} AVE Group`);
 const emailPlaceholder = ref(DEFAULT_PLACEHOLDER);
 
 // Phase Onboarding v1 — sau khi force change password thành công, redirect về /login?password-changed=1

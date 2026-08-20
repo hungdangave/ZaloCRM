@@ -55,7 +55,7 @@
         <v-text-field
           v-model="logoUrl"
           label="Logo (đường dẫn ảnh)"
-          placeholder="/brand/hs-monogram.png hoặc https://..."
+          placeholder="/brand/ave-mark-trang.png hoặc https://..."
           :disabled="!authStore.isOwner || saving"
           variant="outlined"
           density="compact"

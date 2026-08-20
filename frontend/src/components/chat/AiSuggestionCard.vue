@@ -196,7 +196,7 @@ const rows = computed<SuggestionRow[]>(() => {
     if (parts.length > 0) {
       result.push({
         field: 'propertyNeed',
-        label: 'Nhu cầu BĐS',
+        label: 'Nhu cầu KH',
         value: pn, // gửi nguyên object cho BE serialize vào metadata
         displayValue: parts.join(' '),
         isExisting: false, // checkable, default UN-checked như field khác

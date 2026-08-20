@@ -136,7 +136,7 @@ const router = useRouter();
 const auth = useAuthStore();
 
 // Branding lockup — đồng bộ logo + tên tổ chức với trang /login.
-const DEFAULT_LOGO = '/brand/hs-monogram.png';
+const DEFAULT_LOGO = '/brand/ave-mark-trang.png';
 const brandLogo = ref(DEFAULT_LOGO);
 const brandName = ref('AVE Factory CRM');
 function onLogoError() {
