@@ -259,7 +259,7 @@ const showPwModal = ref(false);
   border: 1px solid var(--line, #e7eaf0); border-radius: var(--r-sm, 8px);
   outline: none; font-family: inherit;
 }
-.finput:focus { border-color: var(--brand, #981820); box-shadow: 0 0 0 3px rgba(23,134,190,.12); }
+.finput:focus { border-color: var(--brand, #981820); box-shadow: 0 0 0 3px rgba(152,24,32,.12); }
 .locked {
   font-size: 11px; color: var(--ink-4, #97a0b3);
   background: var(--surface-3, #f1f4f9); padding: 2px 8px; border-radius: var(--r-pill, 999px);

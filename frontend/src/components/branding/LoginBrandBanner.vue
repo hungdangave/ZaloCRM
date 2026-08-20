@@ -61,7 +61,7 @@ watch(
   position: absolute;
   top: -80px; right: -80px;
   width: 280px; height: 280px;
-  background: radial-gradient(circle, rgba(23, 134, 190, 0.45) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(152, 24, 32, 0.45) 0%, transparent 70%);
   pointer-events: none;
 }
 .brand-inner { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; }

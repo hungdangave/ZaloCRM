@@ -252,7 +252,7 @@ onMounted(async () => {
 .mr-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 9px; min-height: 26px; align-items: center; }
 .mr-chip { display: inline-flex; align-items: center; gap: 3px; background: #F7E9EA; border: 1px solid #bfddec; color: var(--action); border-radius: 9999px; padding: 3px 5px 3px 11px; font-size: 12px; }
 .mr-chip-x { border: none; background: none; cursor: pointer; color: var(--action); display: inline-flex; padding: 1px; border-radius: 9999px; }
-.mr-chip-x:hover { background: rgba(23,134,190,.18); }
+.mr-chip-x:hover { background: rgba(152,24,32,.18); }
 .mr-empty { font-size: 11.5px; color: var(--muted); }
 .mr-addrow { position: relative; display: flex; gap: 8px; }
 .mr-input { flex: 1; border: 1px solid var(--hairline); border-radius: 7px; padding: 7px 10px; font-size: 12.5px; outline: none; color: var(--ink); }

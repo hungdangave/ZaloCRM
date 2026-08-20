@@ -440,7 +440,7 @@ function logout() {
 .nav-tab:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
 .nav-tab:hover .ic-svg { color: var(--shell-ink, #cfe2ec); }
 .nav-tab.active {
-  background: rgba(91, 184, 229, 0.16);
+  background: rgba(128, 176, 64, 0.16);
   color: #fff;
   font-weight: 700;
   box-shadow: inset 0 -2px 0 var(--nav-accent, #80B040);

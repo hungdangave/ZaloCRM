@@ -840,7 +840,7 @@
             type="button"
             title="Tải video về máy (đúng tên)"
             @click.stop="downloadVideo"
-            style="position: absolute; top: 12px; right: 12px; display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border: none; border-radius: 999px; background: rgba(23,134,190,0.95); color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.45);"
+            style="position: absolute; top: 12px; right: 12px; display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border: none; border-radius: 999px; background: rgba(152,24,32,0.95); color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.45);"
           >
             <DownloadIcon :size="16" :stroke-width="2" /> Tải video
           </button>

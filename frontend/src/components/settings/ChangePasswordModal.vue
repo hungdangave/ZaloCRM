@@ -145,7 +145,7 @@ async function onSubmit() {
   border: 1px solid var(--line, #e7eaf0); border-radius: var(--r-sm, 8px);
   outline: none; font-family: inherit;
 }
-.mfield input:focus { border-color: var(--brand, #981820); box-shadow: 0 0 0 3px rgba(23,134,190,.12); }
+.mfield input:focus { border-color: var(--brand, #981820); box-shadow: 0 0 0 3px rgba(152,24,32,.12); }
 
 .pw-wrap { position: relative; }
 .pw-wrap input { padding-right: 40px; width: 100%; box-sizing: border-box; }

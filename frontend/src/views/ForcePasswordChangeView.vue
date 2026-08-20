@@ -199,7 +199,7 @@ async function handleSubmit() {
   justify-content: center;
   /* teal-navy HS shell — đồng bộ top-nav */
   background:
-    radial-gradient(1100px 520px at 50% -10%, rgba(23, 134, 190, 0.18), transparent 60%),
+    radial-gradient(1100px 520px at 50% -10%, rgba(152, 24, 32, 0.18), transparent 60%),
     linear-gradient(180deg, #7A131A 0%, #440B0E 100%);
   padding: 16px;
   /* tránh tràn ngang trên màn hẹp + cho cuộn dọc nếu card cao hơn viewport ngắn */
@@ -216,7 +216,7 @@ async function handleSubmit() {
   max-width: 440px;
   width: 100%;
   box-sizing: border-box;
-  box-shadow: 0 24px 60px rgba(6, 34, 47, 0.36);
+  box-shadow: 0 24px 60px rgba(68, 11, 14, 0.36);
 }
 
 /* Màn hẹp (auth mở trên điện thoại): card co + giảm padding để không tràn */

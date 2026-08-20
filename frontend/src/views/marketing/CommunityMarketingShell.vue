@@ -63,8 +63,8 @@ function isActive(to: string): boolean {
   display: flex; align-items: center; gap: 10px; padding: 9px 12px;
   border-radius: 8px; color: #44505c; text-decoration: none; font-size: 14px;
 }
-.ce-mkt-link:hover { background: rgba(15, 111, 160, 0.08); }
-.ce-mkt-link.is-active { background: rgba(15, 111, 160, 0.14); color: #7A131A; font-weight: 600; }
+.ce-mkt-link:hover { background: rgba(122, 19, 26, 0.08); }
+.ce-mkt-link.is-active { background: rgba(122, 19, 26, 0.14); color: #7A131A; font-weight: 600; }
 .ce-mkt-content { flex: 1 1 auto; min-width: 0; overflow: auto; }
 
 @media (max-width: 768px) {

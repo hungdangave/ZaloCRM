@@ -824,10 +824,10 @@ defineExpose({ refetch: fetchStatus });
   font-weight: 600;
   white-space: nowrap;
   cursor: pointer;
-  box-shadow: 0 6px 18px rgba(23, 134, 190, 0.42);
+  box-shadow: 0 6px 18px rgba(152, 24, 32, 0.42);
   transition: max-width 0.22s ease, box-shadow 0.15s;
 }
-.acl-fab:hover { max-width: 240px; box-shadow: 0 8px 22px rgba(23, 134, 190, 0.5); }
+.acl-fab:hover { max-width: 240px; box-shadow: 0 8px 22px rgba(152, 24, 32, 0.5); }
 .acl-fab-ic { flex-shrink: 0; }
 .acl-fab-lb { opacity: 0; transition: opacity 0.18s; }
 .acl-fab:hover .acl-fab-lb { opacity: 1; }

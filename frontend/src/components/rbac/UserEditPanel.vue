@@ -731,13 +731,13 @@ function avatarColor(name: string): string {
 
 /* 2026-06-09 — Modal xác nhận in-app (thay confirm() trình duyệt) */
 .ce-overlay {
-  position: fixed; inset: 0; background: rgba(6, 34, 47, 0.45);
+  position: fixed; inset: 0; background: rgba(68, 11, 14, 0.45);
   display: flex; align-items: center; justify-content: center; z-index: 12000;
   backdrop-filter: blur(2px);
 }
 .ce-modal {
   background: #fff; border-radius: 14px; padding: 22px 24px; width: 420px; max-width: calc(100vw - 32px);
-  box-shadow: 0 24px 60px -12px rgba(6, 34, 47, 0.4);
+  box-shadow: 0 24px 60px -12px rgba(68, 11, 14, 0.4);
 }
 .ce-title { font-size: 17px; font-weight: 700; color: #7A131A; margin: 0 0 8px; }
 .ce-danger .ce-title { color: #b91c1c; }

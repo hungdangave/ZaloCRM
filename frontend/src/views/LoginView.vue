@@ -163,7 +163,7 @@ async function handleLogin() {
   background: #fff;
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 24px 60px -12px rgba(6, 34, 47, 0.28), 0 8px 24px -8px rgba(6, 34, 47, 0.18);
+  box-shadow: 0 24px 60px -12px rgba(68, 11, 14, 0.28), 0 8px 24px -8px rgba(68, 11, 14, 0.18);
 }
 
 /* Banner cột trái đã tách sang component LoginBrandBanner.vue (DRY). */
