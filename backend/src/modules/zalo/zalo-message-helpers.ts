@@ -191,3 +191,56 @@ export function rutSoDienThoaiTuDanhThiep(rawContent: unknown): string {
   }
   return '';
 }
+
+/**
+ * Rút SỐ ĐIỆN THOẠI khách tự gõ trong tin nhắn text (AN AN 22/08/2026).
+ *
+ * Chỉ 176/56.226 hồ sơ khách có SĐT (0,3%) — trong khi khách VẪN gửi số, chỉ là hệ không
+ * giữ lại. Không có SĐT thì không lên đơn được, nên đây là nút thắt của cả lộ trình tự động.
+ *
+ * ⚠️ NHẶT SỐ TRONG VĂN BẢN TỰ DO RẤT DỄ SAI. Soi 110 ca thật trong CSDL thấy 3 kiểu bẫy:
+ *   1. **Mã số thuế** — "MST: 0317182253" cũng là 10 số bắt đầu bằng 0, khớp y hệt SĐT.
+ *   2. **Hotline của DOANH NGHIỆP KHÁC** — tin tự động "TravelJet xin chào… Hotline: 09…",
+ *      "Em Thu Hiền Vinfast xin chào…". Số đó KHÔNG phải của khách.
+ *   3. **Tin rao/quảng cáo** gửi vào — "BÁN CĂN HỘ… 88m²… 09…", "TRIỂN LÃM…".
+ * Ghi nhầm một số vào hồ sơ khách còn TỆ HƠN bỏ sót: gọi nhầm người, giao nhầm hàng.
+ * Nên ở đây ưu tiên CHÍNH XÁC hơn là bắt được nhiều.
+ *
+ * LUẬT:
+ *  - Chỉ nhận tin CỦA KHÁCH (không nhận tin nhân viên tự gửi).
+ *  - Loại khi có dấu hiệu doanh nghiệp/tự động/rao vặt/mã số thuế.
+ *  - Chỉ nhận khi khách đang ĐƯA thông tin của mình (có "sđt/số điện thoại/địa chỉ/gửi/gọi…")
+ *    hoặc tin gần như chỉ có mỗi con số.
+ *  - Chuẩn hoá 84…/+84… → 0…; chỉ nhận đúng 10 số, đầu số di động VN hợp lệ (3/5/7/8/9).
+ *  - Loại số của CHÍNH MÌNH (hotline + nick) — caller truyền vào qua soCuaMinh.
+ */
+const DAU_HIEU_LOAI = [
+  /mst|mã số thuế|ma so thue/,
+  /hotline|tổng đài|tong dai/,
+  /xin chào|cảm ơn (bạn|anh\/chị|quý)|website|https?:\/\//,
+  /bán căn hộ|cho thuê|chính chủ|m²|xuất hóa đơn|triển lãm|diễn đàn/,
+];
+const DAU_HIEU_NHAN = /sđt|sdt|số điện thoại|so dien thoai|số đt|liên hệ|gọi|giao|địa chỉ|đc:|dc:|gửi|nhận/;
+
+export function rutSoDienThoaiTuTinNhan(
+  noiDung: unknown,
+  opts: { cuaKhach: boolean; soCuaMinh?: Set<string> } = { cuaKhach: false },
+): string {
+  if (!opts.cuaKhach || typeof noiDung !== 'string' || !noiDung.trim()) return '';
+  const thuong = noiDung.toLowerCase();
+  if (DAU_HIEU_LOAI.some((re) => re.test(thuong))) return '';
+
+  const gon = noiDung.replace(/[\s.\-()]/g, '');
+  const khop = gon.match(/(?:\+?84|0)(?:3|5|7|8|9)[0-9]{8}/);
+  if (!khop) return '';
+
+  let so = khop[0];
+  if (so.startsWith('+84')) so = '0' + so.slice(3);
+  else if (so.startsWith('84')) so = '0' + so.slice(2);
+  if (so.length !== 10) return '';
+  if (opts.soCuaMinh?.has(so)) return '';
+
+  // Khách phải đang ĐƯA số của mình — hoặc tin ngắn tới mức gần như chỉ có con số.
+  if (!DAU_HIEU_NHAN.test(thuong) && gon.length > 20) return '';
+  return so;
+}

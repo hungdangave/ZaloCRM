@@ -46,3 +46,59 @@ describe('rutSoDienThoaiTuDanhThiep', () => {
     expect(rutSoDienThoaiTuDanhThiep(danhThiep({ phone: '0964773482' }))).toBe('0964773482');
   });
 });
+
+// ── Rút SĐT khách tự gõ trong tin text (AN AN 22/08/2026) ──────────────────
+// Mọi ca dưới đây lấy từ tin nhắn THẬT trong CSDL. Nhóm "phải LOẠI" quan trọng hơn
+// nhóm "phải NHẬN": ghi nhầm số vào hồ sơ khách = gọi nhầm người, giao nhầm hàng.
+import { rutSoDienThoaiTuTinNhan } from '../src/modules/zalo/zalo-message-helpers.js';
+
+const cuaKhach = { cuaKhach: true };
+
+describe('rutSoDienThoaiTuTinNhan — phải NHẬN', () => {
+  it('khách cho địa chỉ giao hàng kèm SĐT', () => {
+    expect(rutSoDienThoaiTuTinNhan('Đc: 763 Bùi Văn Hoà- Long Bình -Đồng Nai\nSđt: 0988738897', cuaKhach)).toBe('0988738897');
+  });
+  it('tin chỉ có mỗi con số', () => {
+    expect(rutSoDienThoaiTuTinNhan('0778736368.', cuaKhach)).toBe('0778736368');
+    expect(rutSoDienThoaiTuTinNhan('0836226279 ạ', cuaKhach)).toBe('0836226279');
+  });
+  it('số viết có dấu cách', () => {
+    expect(rutSoDienThoaiTuTinNhan('086 2526888', cuaKhach)).toBe('0862526888');
+  });
+  it('dạng 84… và +84… đều đưa về 0…', () => {
+    expect(rutSoDienThoaiTuTinNhan('sđt 84962536224', cuaKhach)).toBe('0962536224');
+    expect(rutSoDienThoaiTuTinNhan('liên hệ +84 962 536 224', cuaKhach)).toBe('0962536224');
+  });
+});
+
+describe('rutSoDienThoaiTuTinNhan — phải LOẠI (quan trọng hơn)', () => {
+  it('MÃ SỐ THUẾ trông y hệt SĐT', () => {
+    expect(rutSoDienThoaiTuTinNhan('THÔNG TIN XUẤT HÓA ĐƠN\nCÔNG TY TNHH PHÚC ĐIỀN\nMST: 0317182253', cuaKhach)).toBe('');
+  });
+  it('hotline tự động của DOANH NGHIỆP KHÁC', () => {
+    expect(rutSoDienThoaiTuTinNhan('TravelJet xin chào anh/chị ✈️ Cảm ơn anh/chị đã liên hệ – Hotline: 0989583474', cuaKhach)).toBe('');
+    expect(rutSoDienThoaiTuTinNhan('Em Thu Hiền Vinfast xin chào ❤️ A/c cần tư vấn gọi 0901513993', cuaKhach)).toBe('');
+  });
+  it('tin rao vặt / quảng cáo gửi vào', () => {
+    expect(rutSoDienThoaiTuTinNhan('🔔BÁN CĂN HỘ Usilk : 88 m² – HÀ ĐÔNG. LH 0963525985', cuaKhach)).toBe('');
+    expect(rutSoDienThoaiTuTinNhan('🌏 TRIỂN LÃM VIỆT NAM – CAMPUCHIA 2026, đăng ký 0878296268', cuaKhach)).toBe('');
+  });
+  it('tin do NHÂN VIÊN gửi → không lấy (số trong đó là của shop)', () => {
+    expect(rutSoDienThoaiTuTinNhan('Chị liên hệ 0912345678 giúp em', { cuaKhach: false })).toBe('');
+  });
+  it('số của chính mình (hotline / nick) → loại', () => {
+    expect(rutSoDienThoaiTuTinNhan('gọi 0363336333 nhé', { cuaKhach: true, soCuaMinh: new Set(['0363336333']) })).toBe('');
+  });
+  it('đầu số không hợp lệ / không đủ 10 số → loại', () => {
+    expect(rutSoDienThoaiTuTinNhan('mã đơn 0123456789 nhé', cuaKhach)).toBe('');
+    expect(rutSoDienThoaiTuTinNhan('sđt 09123456', cuaKhach)).toBe('');
+  });
+  it('văn bản dài không có dấu hiệu khách đưa số → loại (tránh nhặt số vu vơ)', () => {
+    const dai = 'Hôm qua mình thấy ai đó đăng lên nhóm con số 0912345678 mà chẳng hiểu để làm gì cả nhỉ bạn';
+    expect(rutSoDienThoaiTuTinNhan(dai, cuaKhach)).toBe('');
+  });
+  it('rỗng / không phải chuỗi → trả rỗng, không ném lỗi', () => {
+    expect(rutSoDienThoaiTuTinNhan('', cuaKhach)).toBe('');
+    expect(rutSoDienThoaiTuTinNhan(null, cuaKhach)).toBe('');
+  });
+});

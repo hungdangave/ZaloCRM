@@ -10,7 +10,7 @@ import { randomUUID } from 'node:crypto';
 import { logger } from '../../shared/utils/logger.js';
 import { prisma } from '../../shared/database/prisma-client.js';
 import { handleIncomingMessage, handleMessageUndo } from '../chat/message-handler.js';
-import { rutSoDienThoaiTuDanhThiep, detectContentType, extractAlbumInfo, updateContactAvatar } from './zalo-message-helpers.js';
+import { rutSoDienThoaiTuDanhThiep, rutSoDienThoaiTuTinNhan, detectContentType, extractAlbumInfo, updateContactAvatar } from './zalo-message-helpers.js';
 import { handleFriendEvent } from './friend-event-handler.js';
 import { refreshGroupInfoNow } from './group-info-refresh.js';
 import { consumeIfExpected as consumeReactionEcho } from '../chat/reaction-echo-cache.js';
@@ -388,6 +388,29 @@ export interface ListenerContext {
  * Attach all zca-js listener events for the given account.
  * Calls listener.start() with retryOnClose at the end.
  */
+
+/**
+ * Tập SỐ CỦA CHÍNH MÌNH (hotline + số của 36 nick) — để không nhặt nhầm số của shop
+ * thành số khách. Nhớ trong 10 phút; danh sách nick hiếm khi đổi.
+ */
+let _soCuaMinh: { bo: Set<string>; hetHan: number } | null = null;
+async function laySoCuaMinh(): Promise<Set<string>> {
+  if (_soCuaMinh && _soCuaMinh.hetHan > Date.now()) return _soCuaMinh.bo;
+  const bo = new Set<string>(['0363336333']); // hotline AN AN
+  try {
+    const nicks = await prisma.zaloAccount.findMany({ select: { phone: true } });
+    for (const n of nicks) {
+      const so = (n.phone ?? '').replace(/[^0-9]/g, '');
+      if (so.length === 10) bo.add(so);
+      else if (so.length === 11 && so.startsWith('84')) bo.add('0' + so.slice(2));
+    }
+  } catch {
+    /* tra được bao nhiêu dùng bấy nhiêu — hotline luôn có sẵn ở trên */
+  }
+  _soCuaMinh = { bo, hetHan: Date.now() + 10 * 60_000 };
+  return bo;
+}
+
 export function attachZaloListener(ctx: ListenerContext): void {
   const { accountId, api, io, userInfoCache, onDisconnected } = ctx;
   const listener = api.listener;
@@ -685,9 +708,16 @@ export function attachZaloListener(ctx: ListenerContext): void {
       // 22/08: khách gửi SĐT qua danh thiếp Zalo → lấy số ra lưu vào hồ sơ khách,
       // thay vì chỉ lưu ảnh QR rồi để nhân viên đi xin lại số.
       const sdtDanhThiep = contentType === 'qr_code' ? rutSoDienThoaiTuDanhThiep(rawContent) : '';
+      // 22/08: khách còn hay GÕ THẲNG số trong tin (kèm địa chỉ giao hàng). Nhặt số trong
+      // văn bản tự do rất dễ sai (mã số thuế, hotline hãng khác, tin rao vặt) nên hàm này
+      // siết rất chặt — thà bỏ sót còn hơn ghi nhầm số vào hồ sơ khách.
+      const sdtTuText =
+        !sdtDanhThiep && contentType === 'text' && !message.isSelf
+          ? rutSoDienThoaiTuTinNhan(content, { cuaKhach: true, soCuaMinh: await laySoCuaMinh() })
+          : '';
 
       const result = await handleIncomingMessage({
-        ...(sdtDanhThiep ? { contactPhone: sdtDanhThiep } : {}),
+        ...(sdtDanhThiep || sdtTuText ? { contactPhone: sdtDanhThiep || sdtTuText } : {}),
         accountId,
         senderUid,
         senderName,
