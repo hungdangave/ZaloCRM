@@ -162,3 +162,32 @@ export function updateContactAvatar(zaloUid: string, avatarUrl: string): void {
     })
     .catch(() => {});
 }
+
+/**
+ * Rút SỐ ĐIỆN THOẠI khách chia sẻ qua danh thiếp Zalo (AN AN 22/08/2026).
+ *
+ * BỆNH: khách gửi số qua danh thiếp → hệ chỉ lưu ảnh QR, KHÔNG lấy số. Nhân viên phải
+ * nhắn ngược "phần mềm bên em không hiện số, chị gọi cho em một cuộc để em lấy số"
+ * (đọc được nguyên văn trong hội thoại thật). Trong khi số NẰM SẴN trong dữ liệu:
+ *   content.description = '{"phone":"0705594993","caption":"0705594993","qrCodeUrl":"..."}'
+ * — một chuỗi JSON LỒNG bên trong, nên nhìn lướt tưởng chỉ có ảnh QR.
+ *
+ * Trả '' nếu không tìm thấy số hợp lệ. KHÔNG đoán bừa: chỉ nhận 9-12 chữ số.
+ */
+export function rutSoDienThoaiTuDanhThiep(rawContent: unknown): string {
+  if (typeof rawContent !== 'object' || rawContent === null) return '';
+  const c = rawContent as Record<string, unknown>;
+  let goc: Record<string, unknown> = {};
+  if (typeof c.description === 'string') {
+    try { goc = JSON.parse(c.description) ?? {}; } catch { return ''; }
+  } else if (c.description && typeof c.description === 'object') {
+    goc = c.description as Record<string, unknown>;
+  }
+  for (const khoa of ['phone', 'caption']) {
+    const v = goc[khoa];
+    if (typeof v !== 'string' && typeof v !== 'number') continue;
+    const so = String(v).replace(/[^\d]/g, '');
+    if (so.length >= 9 && so.length <= 12) return String(v).trim();
+  }
+  return '';
+}

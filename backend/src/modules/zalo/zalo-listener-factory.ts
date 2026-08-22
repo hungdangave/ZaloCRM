@@ -10,7 +10,7 @@ import { randomUUID } from 'node:crypto';
 import { logger } from '../../shared/utils/logger.js';
 import { prisma } from '../../shared/database/prisma-client.js';
 import { handleIncomingMessage, handleMessageUndo } from '../chat/message-handler.js';
-import { detectContentType, extractAlbumInfo, updateContactAvatar } from './zalo-message-helpers.js';
+import { rutSoDienThoaiTuDanhThiep, detectContentType, extractAlbumInfo, updateContactAvatar } from './zalo-message-helpers.js';
 import { handleFriendEvent } from './friend-event-handler.js';
 import { refreshGroupInfoNow } from './group-info-refresh.js';
 import { consumeIfExpected as consumeReactionEcho } from '../chat/reaction-echo-cache.js';
@@ -682,8 +682,12 @@ export function attachZaloListener(ctx: ListenerContext): void {
         typeof rawContent === 'string' ? rawContent : JSON.stringify(rawContent || '');
       const contentType = detectContentType(message.data?.msgType, rawContent);
       const album = extractAlbumInfo(contentType, rawContent);
+      // 22/08: khách gửi SĐT qua danh thiếp Zalo → lấy số ra lưu vào hồ sơ khách,
+      // thay vì chỉ lưu ảnh QR rồi để nhân viên đi xin lại số.
+      const sdtDanhThiep = contentType === 'qr_code' ? rutSoDienThoaiTuDanhThiep(rawContent) : '';
 
       const result = await handleIncomingMessage({
+        ...(sdtDanhThiep ? { contactPhone: sdtDanhThiep } : {}),
         accountId,
         senderUid,
         senderName,

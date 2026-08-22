@@ -153,6 +153,19 @@
       <div v-else class="qr-fallback">
         <v-icon icon="mdi-qrcode" size="56" color="primary" />
       </div>
+      <!-- SĐT khách chia sẻ — thứ nhân viên THỰC SỰ cần, hiện to và chép được 1 chạm -->
+      <button
+        v-if="qrPhone"
+        type="button"
+        class="qr-phone"
+        title="Bấm để chép số điện thoại"
+        @click="copyAccount(qrPhone)"
+      >
+        <v-icon size="15">mdi-phone</v-icon>
+        <span class="qr-phone-num">{{ qrPhone }}</span>
+        <v-icon size="13" class="qr-phone-copy">mdi-content-copy</v-icon>
+      </button>
+
       <div class="qr-actions">
         <a v-if="qrImageUrl" :href="qrImageUrl" :download="`qr-${Date.now()}.png`" class="qr-btn">
           <v-icon size="12">mdi-download</v-icon> Tải QR
@@ -652,16 +665,36 @@ const locationIsLive = computed<boolean>(() => {
   return Number(p?.isUserLocation || 0) === 1;
 });
 
-// ── QR Code ───────────────────────────────────────────────────────────────
-// Zalo lưu qrCodeUrl trong content.description (JSON string), không phải plain text
-const qrImageUrl = computed<string>(() => {
+// ── QR Code / danh thiếp Zalo ─────────────────────────────────────────────
+// Zalo nhét MỘT CHUỖI JSON vào content.description, bên trong có cả 3 thứ:
+//   { "phone": "0705594993", "caption": "0705594993", "qrCodeUrl": "https://qr-talk..." }
+//
+// BỆNH (CEO báo 22/08): khách gửi số điện thoại qua danh thiếp Zalo → giao diện CHỈ vẽ
+// ảnh QR, **không hiện số**. Nhân viên phải nhắn ngược lại "phần mềm bên em không hiện
+// số, chị gọi cho em một cuộc để em lấy số" — đọc được nguyên văn câu đó trong hội thoại
+// thật. Mất khách, mất thời gian, trong khi SỐ NẰM SẴN TRONG DỮ LIỆU đã lưu.
+// Nguyên nhân: mã cũ parse JSON đó nhưng CHỈ lấy mỗi `qrCodeUrl`, bỏ qua `phone`.
+const qrThongTin = computed<{ qrCodeUrl: string; phone: string }>(() => {
   const desc = props.content?.description;
-  if (typeof desc !== 'string') return String(props.content?.qrCodeUrl || '');
-  try {
-    const parsed = JSON.parse(desc);
-    return String(parsed?.qrCodeUrl || '');
-  } catch { return ''; }
+  let goc: Record<string, unknown> = {};
+  if (typeof desc === 'string') {
+    try { goc = JSON.parse(desc) ?? {}; } catch { goc = {}; }
+  } else if (desc && typeof desc === 'object') {
+    goc = desc as Record<string, unknown>;
+  }
+  const lay = (k: string) => {
+    const v = goc[k] ?? (props.content as Record<string, unknown> | undefined)?.[k];
+    return typeof v === 'string' || typeof v === 'number' ? String(v) : '';
+  };
+  // Zalo có khi để số ở `phone`, có khi chỉ ở `caption` → lấy cái nào có, ưu tiên `phone`.
+  let sdt = lay('phone') || lay('caption');
+  // `caption` đôi khi là câu chữ chứ không phải số → chỉ nhận khi trông giống SĐT.
+  const chiSo = sdt.replace(/[^\d]/g, '');
+  if (chiSo.length < 9 || chiSo.length > 12) sdt = '';
+  return { qrCodeUrl: lay('qrCodeUrl'), phone: sdt };
 });
+const qrImageUrl = computed<string>(() => qrThongTin.value.qrCodeUrl);
+const qrPhone = computed<string>(() => qrThongTin.value.phone);
 
 // ── Bank account card (Zalo zinstant.bankcard) ───────────────────────────
 // params.pcItem.data_url là URL HTML render cho PC web (đã có ?data=html)
@@ -896,6 +929,16 @@ const linkDescription = computed<string>(() => {
   margin-bottom: 8px;
 }
 .qr-image-wrap { display: block; }
+.qr-phone {
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  width: 100%; margin: 8px 0 2px; padding: 9px 12px;
+  border: 1px solid var(--brand, #981820); border-radius: 8px;
+  background: var(--brand-soft, #F7E9EA); color: var(--brand-700, #631015);
+  font-size: 16px; font-weight: 800; letter-spacing: .04em; cursor: pointer;
+}
+.qr-phone:hover { background: #fff; }
+.qr-phone-num { font-variant-numeric: tabular-nums; }
+.qr-phone-copy { opacity: .6; }
 .qr-actions {
   display: flex; gap: 6px; margin-top: 8px;
 }
