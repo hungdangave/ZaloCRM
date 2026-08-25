@@ -11,11 +11,15 @@
           Mẫu tin nhắn <span class="qtp-count">{{ filtered.length }}</span>
         </div>
         <div class="qtp-tagbar">
-          <button class="qtp-tag" :class="{ active: !tagFilter }" @click="tagFilter = ''">Tất cả</button>
-          <button v-for="tag in PROJECT_TAGS" :key="tag" class="qtp-tag"
-            :class="{ active: tagFilter === tag }" @click="tagFilter = tagFilter === tag ? '' : tag">
-            {{ shortTag(tag) }}
-          </button>
+          <template v-if="PROJECT_TAGS.length">
+            <button class="qtp-tag" :class="{ active: !tagFilter }" @click="tagFilter = ''">Tất cả</button>
+            <button v-for="tag in PROJECT_TAGS" :key="tag" class="qtp-tag"
+              :class="{ active: tagFilter === tag }" @click="tagFilter = tagFilter === tag ? '' : tag">
+              {{ shortTag(tag) }}
+            </button>
+          </template>
+          <button class="qtp-tag qtp-tag--add" title="Lưu tin đang gõ thành mẫu mới"
+            @click="emit('create')">＋ Thêm mẫu</button>
         </div>
       </div>
 
@@ -45,7 +49,12 @@
           </span>
           <span v-if="(tpl.tagIds || []).length" class="qtp-item-tag">{{ shortTag(tpl.tagIds![0]) }}</span>
         </button>
-        <div v-if="!filtered.length" class="qtp-empty">Không tìm thấy mẫu nào</div>
+        <div v-if="!filtered.length" class="qtp-empty">
+          <template v-if="props.templates.length">Không có mẫu nào khớp</template>
+          <template v-else>
+            Chưa có mẫu nào. Gõ sẵn nội dung ở ô chat rồi bấm <b>＋ Thêm mẫu</b> để lưu lại.
+          </template>
+        </div>
       </div>
 
       <div class="qtp-foot">↑↓ chọn · Enter chèn · Esc đóng</div>
@@ -72,7 +81,6 @@ interface Template {
 // Dùng cho {crm_*}. Trống → fallback fullName (khớp BE render-template.ts).
 interface ContactCtx { fullName?: string | null; gender?: string | null; crmAlias?: string | null }
 
-const PROJECT_TAGS = ['Emerald Garden View', 'Emerald Boulevard', 'Emerald River Park', 'Monrei Sài Gòn'];
 
 const props = defineProps<{
   visible: boolean;
@@ -87,7 +95,22 @@ const emit = defineEmits<{
   // Trả rich payload {text, styles} (giữ đậm/màu) + id để track-use.
   select: [payload: RichPayload, templateId: string];
   close: [];
+  /** Bấm "＋ Thêm mẫu" — mở hộp thoại tạo mẫu từ nội dung đang gõ. */
+  create: [];
 }>();
+
+// 25/08: TRƯỚC ĐÂY là 4 tên dự án BẤT ĐỘNG SẢN hardcode của bên bán phần mềm
+// ('Emerald Garden View', 'Emerald Boulevard', 'Emerald River Park', 'Monrei Sài Gòn')
+// — sai hẳn ngành hàng, và lọc theo chúng thì không bao giờ ra mẫu nào.
+// Nay sinh chip lọc TỪ CHÍNH dữ liệu: phân loại + thẻ mà mẫu đang dùng.
+const PROJECT_TAGS = computed<string[]>(() => {
+  const bo = new Set<string>();
+  for (const t of props.templates) {
+    if (t.category) bo.add(t.category);
+    for (const tag of t.tagIds || []) bo.add(tag);
+  }
+  return [...bo].sort();
+});
 
 const selectedIndex = ref(0);
 const tagFilter = ref('');
@@ -287,6 +310,7 @@ defineExpose({ onKey });
 .qtp-title { display: flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: .3px; margin-bottom: 6px; }
 .qtp-count { background: #e6f3fb; color: #0f6ea3; font-size: 10.5px; font-weight: 700; padding: 0 6px; border-radius: 999px; }
 .qtp-tagbar { display: flex; gap: 5px; flex-wrap: wrap; }
+.qtp-tag--add { border-color: var(--brand, #981820); color: var(--brand, #981820); font-weight: 700; }
 .qtp-tag { font-size: 11px; padding: 3px 9px; border: 1px solid #e3e6eb; background: #fff; border-radius: 999px; color: #4b5563; cursor: pointer; white-space: nowrap; }
 .qtp-tag:hover { border-color: #981820; }
 .qtp-tag.active { background: #e6f3fb; border-color: #981820; color: #0f6ea3; font-weight: 600; }

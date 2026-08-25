@@ -627,7 +627,35 @@
               :anchor-el="editorWrapRef"
               @select="onTemplateSelect"
               @close="showTemplatePopup = false"
+              @create="moHopThoaiTaoMau"
             />
+
+            <!-- Hộp thoại LƯU MẪU (AN AN 25/08) — lưu thẳng nội dung đang gõ thành mẫu.
+                 Trước đây popup mẫu chỉ đọc, mà API thì chưa tồn tại (404) nên luôn rỗng. -->
+            <v-dialog v-model="hienTaoMau" max-width="520">
+              <v-card>
+                <v-card-title class="text-subtitle-1">Lưu thành mẫu tin nhắn</v-card-title>
+                <v-card-text>
+                  <v-text-field v-model="mauMoi.name" label="Tên mẫu *" density="compact"
+                    variant="outlined" autofocus hide-details="auto" class="mb-3" />
+                  <v-text-field v-model="mauMoi.shortcut" label="Gõ tắt (không bắt buộc) — ví dụ: giaban"
+                    density="compact" variant="outlined" hide-details="auto" class="mb-3"
+                    prefix="/" />
+                  <v-text-field v-model="mauMoi.category" label="Phân loại (không bắt buộc) — ví dụ: Chào, Giá, Chốt"
+                    density="compact" variant="outlined" hide-details="auto" class="mb-3" />
+                  <v-textarea v-model="mauMoi.content" label="Nội dung *" rows="5"
+                    density="compact" variant="outlined" hide-details="auto" class="mb-3" />
+                  <v-switch v-model="mauMoi.dungChung" color="primary" density="compact" hide-details
+                    :label="mauMoi.dungChung ? 'Cả đội dùng chung' : 'Chỉ mình tôi dùng'" />
+                  <div v-if="loiTaoMau" class="text-error text-caption mt-2">{{ loiTaoMau }}</div>
+                </v-card-text>
+                <v-card-actions>
+                  <v-spacer />
+                  <v-btn variant="text" @click="hienTaoMau = false">Huỷ</v-btn>
+                  <v-btn color="primary" :loading="dangLuuMau" @click="luuMauMoi">Lưu mẫu</v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
             <RichTextEditor
               ref="editorRef"
               v-model="inputText"
@@ -894,7 +922,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick, computed, onMounted, onBeforeUnmount } from 'vue';
+import { ref, reactive, watch, nextTick, computed, onMounted, onBeforeUnmount } from 'vue';
 import type { Conversation, Message } from '@/composables/use-chat';
 import { formatInOrgTz, weekdayInOrgTz, getOrgParts } from '@/composables/use-org-timezone';
 import { api } from '@/api/index';
@@ -2694,6 +2722,49 @@ function onCancelReplyEdit() {
 const showTemplatePopup = ref(false);
 const templateQuery = ref('');
 const templates = ref<TemplateItem[]>([]);
+
+// ── Tạo mẫu tin nhắn (AN AN 25/08) ─────────────────────────────────────────
+const hienTaoMau = ref(false);
+const dangLuuMau = ref(false);
+const loiTaoMau = ref('');
+const mauMoi = reactive({ name: '', shortcut: '', category: '', content: '', dungChung: false });
+
+function moHopThoaiTaoMau() {
+  showTemplatePopup.value = false;
+  loiTaoMau.value = '';
+  // Lấy sẵn nội dung đang gõ — luồng tự nhiên: gõ xong thấy hay thì lưu lại dùng lần sau.
+  mauMoi.content = (inputText.value || '').trim();
+  mauMoi.name = '';
+  mauMoi.shortcut = '';
+  mauMoi.category = '';
+  mauMoi.dungChung = false;
+  hienTaoMau.value = true;
+}
+
+async function luuMauMoi() {
+  loiTaoMau.value = '';
+  if (!mauMoi.name.trim()) { loiTaoMau.value = 'Chưa đặt tên mẫu'; return; }
+  if (!mauMoi.content.trim()) { loiTaoMau.value = 'Nội dung mẫu đang trống'; return; }
+  dangLuuMau.value = true;
+  try {
+    await api.post('/automation/templates', {
+      name: mauMoi.name.trim(),
+      content: mauMoi.content,
+      shortcut: mauMoi.shortcut.trim() || null,
+      category: mauMoi.category.trim() || null,
+      visibility: mauMoi.dungChung ? 'public' : 'private',
+    });
+    await loadTemplates();
+    hienTaoMau.value = false;
+    toast.success('Đã lưu mẫu tin nhắn');
+  } catch (err: any) {
+    // Hiện ĐÚNG câu máy chủ trả về — không nuốt lỗi như chỗ lưu hồ sơ KH trước đây.
+    loiTaoMau.value =
+      err?.response?.data?.error || err?.response?.data?.message || 'Không lưu được mẫu';
+  } finally {
+    dangLuuMau.value = false;
+  }
+}
 
 async function loadTemplates() {
   try {
