@@ -241,10 +241,39 @@ export async function assertContactEditable(args: {
   });
 
   if (!access) {
+    // ── AN AN 25/08/2026: TÔN TRỌNG QUYỀN `contact: view_all` ────────────────
+    // BỆNH: 20/08 CEO mở cho 5 bạn CSKH dùng chung cả 36 nick → ai cũng MỞ được mọi hội
+    // thoại. Nhưng lớp này vẫn khoá theo `contact_access` (ai phụ trách khách nào) → mở
+    // hội thoại lên, sửa SĐT khách thì bị 403, giao diện chỉ hiện "Lưu thất bại, thử lại".
+    // Đúng vết xe cũ: HAI LỚP QUYỀN không khớp nhau thì sinh ra vùng chết.
+    //
+    // Nay: ai được cấp `contact: view_all` trong nhóm quyền thì sửa được mọi KH của org.
+    // Vì sao làm ở đây thay vì đổ 280.000 dòng contact_access: dùng ĐÚNG cơ chế phân quyền
+    // sẵn có → CEO bật/tắt được bất cứ lúc nào trong màn Phân quyền, không cần đụng dữ liệu.
+    // Đội nào muốn giữ "ai chăm nấy" thì chỉ việc KHÔNG cấp view_all — hành vi cũ nguyên vẹn.
+    if (await coQuyenXemToanBoKhach(args.userId)) return;
+
     const err = new Error('KH này không thuộc danh sách chăm của bạn — không thể sửa thông tin');
     (err as any).statusCode = 403;
     (err as any).code = 'CONTACT_EDIT_FORBIDDEN';
     throw err;
   }
   // primary + collaborator đều full-edit như nhau (M55: không phân quyền theo role)
+}
+
+/**
+ * Người này có quyền `contact: view_all` trong nhóm quyền không?
+ * (dùng cho assertContactEditable — xem giải thích ở đó)
+ */
+async function coQuyenXemToanBoKhach(userId: string): Promise<boolean> {
+  try {
+    const u = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { permissionGroup: { select: { grants: true } } },
+    });
+    const grants = u?.permissionGroup?.grants as Record<string, Record<string, boolean>> | null;
+    return grants?.contact?.view_all === true;
+  } catch {
+    return false; // tra không được → giữ hành vi chặt, không nới nhầm
+  }
 }

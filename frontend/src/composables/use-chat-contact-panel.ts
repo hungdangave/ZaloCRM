@@ -16,11 +16,12 @@ export function useChatContactPanel(
   getContact: () => Contact | null,
   onSaved: () => void,
 ) {
-  const { updateContact, fetchContact } = useContacts();
+  const { updateContact, fetchContact, loiSuaKhachCuoi } = useContacts();
 
   const saving = ref(false);
   const saveSuccess = ref(false);
   const saveError = ref(false);
+  const saveErrorMessage = ref('');
   const contactAppointments = ref<Appointment[]>([]);
 
   const form = reactive({
@@ -138,6 +139,7 @@ export function useChatContactPanel(
     saving.value = true;
     saveSuccess.value = false;
     saveError.value = false;
+    saveErrorMessage.value = '';
 
     const result = await updateContact(contactId, {
       fullName: form.fullName || null,
@@ -178,12 +180,16 @@ export function useChatContactPanel(
       setTimeout(() => { saveSuccess.value = false; }, 2500);
     } else {
       saveError.value = true;
+      // 25/08: hiện ĐÚNG câu máy chủ trả về (vd "KH này không thuộc danh sách chăm của
+      // bạn") thay vì "Lưu thất bại, thử lại" — để nhân viên biết phải làm gì, và để
+      // người sửa lỗi không phải đoán.
+      saveErrorMessage.value = loiSuaKhachCuoi.value || '';
     }
   }
 
   return {
     form,
-    saving, saveSuccess, saveError,
+    saving, saveSuccess, saveError, saveErrorMessage,
     contactAppointments,
     saveContact, reloadAppointments,
   };

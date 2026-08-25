@@ -199,7 +199,7 @@
         </v-alert>
         <v-alert v-if="saveError" type="error" density="compact" class="mx-3 my-2" closable
           @click:close="saveError = false">
-          Lưu thất bại, thử lại.
+          {{ saveErrorMessage || 'Lưu thất bại, thử lại.' }}
         </v-alert>
 
         <!-- Tag CRM section moved to MessageThread chat input bar (Smax-style) -->
@@ -655,7 +655,7 @@ function onDealStageUpdatedPanel(newStatusId: string | null) {
 }
 
 const {
-  form, saveSuccess, saveError,
+  form, saveSuccess, saveError, saveErrorMessage,
   contactAppointments,
   saveContact, reloadAppointments,
 } = useChatContactPanel(

@@ -987,6 +987,27 @@ export async function contactRoutes(app: FastifyInstance): Promise<void> {
 
   // ── PUT /api/v1/contacts/:id — update CRM fields ─────────────────────────
   app.put('/api/v1/contacts/:id', async (request: FastifyRequest, reply: FastifyReply) => {
+    // ── AN AN 25/08/2026: GHI LOG MỌI LẦN TỪ CHỐI ────────────────────────────
+    // Nhân viên báo "Lưu thất bại, thử lại" suốt mà KHÔNG cách nào tra được: route này
+    // trả 400/403 ở nhiều nhánh mà không ghi dòng nào, còn giao diện thì vứt luôn thông
+    // điệp máy chủ. Mù cả hai đầu → phải đoán. Đúng vết xe `Cannot get session` (16/08).
+    // Nay bọc `reply.status` để mọi mã 4xx/5xx đều để lại vết: ai, KH nào, vì sao.
+    const traLoiGoc = reply.status.bind(reply);
+    (reply as any).status = (ma: number) => {
+      const r = traLoiGoc(ma);
+      if (ma >= 400) {
+        const goc = r.send.bind(r);
+        (r as any).send = (than: any) => {
+          logger.warn(
+            '[contacts] TU CHOI sua KH %s | user=%s | ma=%d | ly do=%s',
+            (request.params as any)?.id, request.user?.id, ma,
+            typeof than === 'object' ? JSON.stringify(than).slice(0, 200) : String(than).slice(0, 200),
+          );
+          return goc(than);
+        };
+      }
+      return r;
+    };
     try {
       const user = request.user!;
       const { id } = request.params as { id: string };

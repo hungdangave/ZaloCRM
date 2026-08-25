@@ -392,6 +392,9 @@ export function useContacts() {
     }
   }
 
+  /** Câu lỗi CUỐI CÙNG máy chủ trả về khi sửa hồ sơ KH (rỗng nếu chưa lỗi lần nào). */
+  const loiSuaKhachCuoi = ref('');
+
   async function updateContact(id: string, payload: Partial<Contact>): Promise<Contact | null> {
     saving.value = true;
     try {
@@ -399,7 +402,15 @@ export function useContacts() {
       const idx = contacts.value.findIndex(c => c.id === id);
       if (idx !== -1) contacts.value[idx] = res.data;
       return res.data;
-    } catch (err) {
+    } catch (err: any) {
+      // 25/08: TRƯỚC ĐÂY vứt luôn thông điệp máy chủ, giao diện chỉ hiện "Lưu thất bại,
+      // thử lại" → nhân viên báo lỗi mà không ai tra được nguyên nhân. Nay giữ lại câu
+      // máy chủ trả về để hiện đúng cho người dùng.
+      loiSuaKhachCuoi.value =
+        err?.response?.data?.hint ||
+        err?.response?.data?.error ||
+        err?.response?.data?.message ||
+        err?.message || '';
       console.error('Failed to update contact:', err);
       return null;
     } finally {
@@ -433,7 +444,7 @@ export function useContacts() {
     contacts, total, loading, saving, deleting,
     filters, pagination,
     fetchContacts, fetchContact,
-    createContact, updateContact, deleteContact,
+    createContact, updateContact, deleteContact, loiSuaKhachCuoi,
     resetFilters,
   };
 }
