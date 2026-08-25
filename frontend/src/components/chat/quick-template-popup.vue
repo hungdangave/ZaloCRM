@@ -100,7 +100,7 @@ const emit = defineEmits<{
 }>();
 
 // 25/08: TRƯỚC ĐÂY là 4 tên dự án BẤT ĐỘNG SẢN hardcode của bên bán phần mềm
-// ('Emerald Garden View', 'Emerald Boulevard', 'Emerald River Park', 'Monrei Sài Gòn')
+// (4 tên dự án bất động sản hardcode)
 // — sai hẳn ngành hàng, và lọc theo chúng thì không bao giờ ra mẫu nào.
 // Nay sinh chip lọc TỪ CHÍNH dữ liệu: phân loại + thẻ mà mẫu đang dùng.
 const PROJECT_TAGS = computed<string[]>(() => {
@@ -159,7 +159,9 @@ onBeforeUnmount(() => {
   }
 });
 
-function shortTag(tag: string): string { return tag.replace(/^Emerald\s+/, '').replace('Sài Gòn', 'SG'); }
+// 25/08: bản cũ cắt tiền tố "Emerald " và rút gọn "Sài Gòn"→"SG" — logic chết, chỉ đúng
+// với tên dự án bất động sản của bên bán phần mềm. Nay chỉ rút gọn nhãn quá dài cho vừa chip.
+function shortTag(tag: string): string { return tag.length > 18 ? tag.slice(0, 17) + '…' : tag; }
 
 // Chuẩn hóa query gõ tắt (giống normalizeShortcut backend) để so prefix với shortcut.
 function normQuery(q: string): string {

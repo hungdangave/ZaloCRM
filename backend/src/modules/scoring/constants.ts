@@ -6,7 +6,7 @@
  * Match với CEO review design 2026-05-15:
  *   Weights:   E 35% · I 30% · F 15% · V 20%
  *   Decay:     -1/-3/-5/-8 per ngày (3-7/7-14/14-30/30-60)
- *   Stages:    8 stages BĐS pipeline (Mới → Tiếp cận → ... → Chốt)
+ *   Stages:    8 bước phễu bán hàng (Mới → Tiếp cận → ... → Chốt)
  *   Bottleneck: Stage 1-2-3 (Mới/Tiếp cận/Hẹn gặp)
  *
  * Tất cả tunable từ Settings UI sau khi seed. Đây chỉ là defaults.
@@ -96,7 +96,7 @@ export const DEFAULT_SIGNAL_RULES: SignalRuleSeed[] = [
     ruleType: 'keyword',
     delta: 10,
     keywords: ['vị trí', 'view', 'hướng', 'diện tích', 'mặt tiền', 'tầng', 'số phòng'],
-    label: 'KH hỏi chi tiết dự án',
+    label: 'KH hỏi chi tiết sản phẩm',
   },
   {
     signalKey: 'ask_documents',
@@ -146,14 +146,14 @@ export const DEFAULT_SIGNAL_RULES: SignalRuleSeed[] = [
     ruleType: 'action',
     delta: 25,
     capTotal: 50, // max +50 từ booking (tránh spam)
-    label: 'Đã đặt lịch xem nhà',
+    label: 'Đã đặt lịch hẹn',
   },
   {
     signalKey: 'appointment_complete',
     dimension: 'intent',
     ruleType: 'action',
     delta: 35,
-    label: 'Hoàn thành lịch xem nhà',
+    label: 'Đã hoàn thành lịch hẹn',
   },
   {
     signalKey: 'document_sent',
@@ -185,7 +185,7 @@ export const DEFAULT_SIGNAL_RULES: SignalRuleSeed[] = [
     ruleType: 'profile',
     delta: 20,
     capTotal: 20,
-    label: 'Ngân sách khớp dự án',
+    label: 'Ngân sách phù hợp',
   },
   {
     signalKey: 'location_match',
@@ -193,7 +193,7 @@ export const DEFAULT_SIGNAL_RULES: SignalRuleSeed[] = [
     ruleType: 'profile',
     delta: 10,
     capTotal: 10,
-    label: 'Vị trí mong muốn khớp dự án',
+    label: 'Khu vực phù hợp',
   },
   {
     signalKey: 'type_match',
@@ -201,7 +201,7 @@ export const DEFAULT_SIGNAL_RULES: SignalRuleSeed[] = [
     ruleType: 'profile',
     delta: 8,
     capTotal: 8,
-    label: 'Loại hình (gia đình/căn hộ) khớp dự án',
+    label: 'Nhu cầu phù hợp',
   },
   {
     signalKey: 'referral_link',

@@ -115,7 +115,7 @@
                 <textarea
                   v-model="reason"
                   class="afm-reason"
-                  placeholder="VD: KH hỏi giá Emerald GV, cần chăm tiếp tới khi đặt lịch xem nhà…"
+                  placeholder="VD: KH hỏi giá nhang trầm, cần chăm tiếp tới khi chốt đơn…"
                   rows="3"
                 />
                 <div class="afm-help">Bắt buộc nhập để quản lý audit được lý do bám đuổi thủ công.</div>
