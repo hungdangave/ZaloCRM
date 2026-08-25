@@ -1608,6 +1608,13 @@ model MessageTemplate {
   shortcut         String?
   content          String // plain text — LUÔN = contentRich.text (derive ở route), dùng search + chèn chat
   contentRich      Json?     @map("content_rich") // { text: string, styles: [{st,start,len}] } — định dạng Zalo
+  // ── ẢNH KÈM MẪU (AN AN 25/08/2026) ─────────────────────────────────────
+  // Nhân viên xin "mẫu gửi kèm cả chữ lẫn ảnh". Lưu DANH SÁCH URL ảnh trong kho
+  // media (MinIO), KHÔNG nhúng bytes vào DB: ảnh dùng lại nhiều lần, nhúng sẽ phình
+  // bảng và mỗi lần đọc mẫu lại kéo cả megabyte.
+  // Dạng: [{ url, name?, thumbnailUrl? }]. Gửi = tải về tạm rồi sendImage kèm caption
+  // — đi đúng đường mà send-block đã dùng, không phát minh đường mới.
+  attachments      Json?
   category         String? // phân loại chức năng (FAQ/Chào/Chốt) — song song tagIds dự án
   tagIds           String[]  @default([]) @map("tag_ids") // 4 tag dự án + free-form
   usageCount       Int       @default(0) @map("usage_count")

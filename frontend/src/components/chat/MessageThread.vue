@@ -645,6 +645,20 @@
                     density="compact" variant="outlined" hide-details="auto" class="mb-3" />
                   <v-textarea v-model="mauMoi.content" label="Nội dung *" rows="5"
                     density="compact" variant="outlined" hide-details="auto" class="mb-3" />
+                  <!-- Ảnh kèm: tải lên kho media rồi giữ MÃ ảnh (xem message-template-routes.ts) -->
+                  <div class="mb-3">
+                    <input ref="oChonAnhMau" type="file" accept="image/*" multiple hidden
+                      @change="chonAnhChoMau" />
+                    <v-btn size="small" variant="outlined" :loading="dangTaiAnh"
+                      prepend-icon="mdi-image-plus" @click="oChonAnhMau?.click()">
+                      Thêm ảnh kèm ({{ anhMau.length }}/12)
+                    </v-btn>
+                    <div v-if="anhMau.length" class="mt-2 d-flex flex-wrap ga-1">
+                      <v-chip v-for="(a, i) in anhMau" :key="a.mediaId" size="small" closable
+                        @click:close="anhMau.splice(i, 1)">{{ a.name }}</v-chip>
+                    </div>
+                  </div>
+
                   <v-switch v-model="mauMoi.dungChung" color="primary" density="compact" hide-details
                     :label="mauMoi.dungChung ? 'Cả đội dùng chung' : 'Chỉ mình tôi dùng'" />
                   <div v-if="loiTaoMau" class="text-error text-caption mt-2">{{ loiTaoMau }}</div>
@@ -1064,6 +1078,7 @@ import { registerPendingTags, clearPendingTags } from '@/composables/use-pending
 
 interface TemplateItem {
   id: string; name: string; shortcut?: string | null; content: string; category: string | null; isPersonal: boolean;
+  attachments?: Array<{ mediaId: string; name?: string }>;
   contentRich?: { text: string; styles?: Array<{ st: string; start: number; len: number }> } | null;
   tagIds?: string[];
 }
@@ -2728,6 +2743,31 @@ const hienTaoMau = ref(false);
 const dangLuuMau = ref(false);
 const loiTaoMau = ref('');
 const mauMoi = reactive({ name: '', shortcut: '', category: '', content: '', dungChung: false });
+// Ảnh kèm mẫu: chỉ giữ mã ảnh trong kho (tải lên qua /media/upload), không giữ bytes.
+const anhMau = ref<Array<{ mediaId: string; name: string }>>([]);
+const dangTaiAnh = ref(false);
+const oChonAnhMau = ref<HTMLInputElement | null>(null);
+
+async function chonAnhChoMau(e: Event) {
+  const files = (e.target as HTMLInputElement).files;
+  if (!files?.length) return;
+  dangTaiAnh.value = true;
+  loiTaoMau.value = '';
+  try {
+    const fd = new FormData();
+    for (const f of Array.from(files).slice(0, 12)) fd.append('files', f);
+    const res = await api.post<{ assets: Array<{ id: string; name: string }> }>('/media/upload', fd);
+    for (const a of res.data.assets || []) {
+      if (anhMau.value.length >= 12) break;      // trần album Zalo
+      anhMau.value.push({ mediaId: a.id, name: a.name });
+    }
+  } catch (err: any) {
+    loiTaoMau.value = err?.response?.data?.error || 'Không tải được ảnh lên kho';
+  } finally {
+    dangTaiAnh.value = false;
+    if (oChonAnhMau.value) oChonAnhMau.value.value = '';
+  }
+}
 
 function moHopThoaiTaoMau() {
   showTemplatePopup.value = false;
@@ -2738,13 +2778,17 @@ function moHopThoaiTaoMau() {
   mauMoi.shortcut = '';
   mauMoi.category = '';
   mauMoi.dungChung = false;
+  anhMau.value = [];
   hienTaoMau.value = true;
 }
 
 async function luuMauMoi() {
   loiTaoMau.value = '';
   if (!mauMoi.name.trim()) { loiTaoMau.value = 'Chưa đặt tên mẫu'; return; }
-  if (!mauMoi.content.trim()) { loiTaoMau.value = 'Nội dung mẫu đang trống'; return; }
+  // Mẫu CHỈ có ảnh (vd bảng giá) là hợp lệ — không bắt buộc phải có chữ.
+  if (!mauMoi.content.trim() && !anhMau.value.length) {
+    loiTaoMau.value = 'Mẫu phải có nội dung hoặc ít nhất 1 ảnh'; return;
+  }
   dangLuuMau.value = true;
   try {
     await api.post('/automation/templates', {
@@ -2753,6 +2797,7 @@ async function luuMauMoi() {
       shortcut: mauMoi.shortcut.trim() || null,
       category: mauMoi.category.trim() || null,
       visibility: mauMoi.dungChung ? 'public' : 'private',
+      attachments: anhMau.value,
     });
     await loadTemplates();
     hienTaoMau.value = false;
@@ -2855,10 +2900,57 @@ function onComposerNavKey(event: KeyboardEvent): boolean {
 
 // Chèn mẫu: giữ định dạng đậm/màu qua applyRichPayload (biến đã render + re-anchor offset ở popup).
 // Thay nội dung ô bằng (text trước "/") + mẫu. KHÔNG auto-send — sale tự Enter.
+/**
+ * Gửi mẫu CÓ ẢNH: gửi lần lượt từng ảnh qua `/media/:id/send` — đường sẵn có đã lo đủ
+ * (đóng dấu logo, chặn nick riêng tư/đã xoá, ghi tin vào CRM). Chữ đi làm CHÚ THÍCH của
+ * ảnh ĐẦU TIÊN, giống hệt cách Zalo gửi album kèm lời nhắn.
+ * Gửi TUẦN TỰ, không bắn song song: lớp giãn nhịp xếp hàng theo từng nick, bắn song song
+ * chỉ làm chúng chờ nhau mà lại giống máy hơn.
+ */
+async function guiMauCoAnh(chu: string, anh: Array<{ mediaId: string; name?: string }>) {
+  const convId = props.conversation?.id;
+  if (!convId) return;
+  let daGui = 0;
+  for (let i = 0; i < anh.length; i++) {
+    try {
+      await api.post(`/media/${anh[i].mediaId}/send`, {
+        conversationId: convId,
+        caption: i === 0 ? chu : '',
+      });
+      daGui++;
+    } catch (err: any) {
+      // Báo NGAY và DỪNG — gửi tiếp khi đã lỗi dễ thành nửa vời, khách nhận thiếu ảnh
+      // mà sale tưởng đã gửi đủ.
+      toast.error(
+        err?.response?.data?.error ||
+        `Gửi được ${daGui}/${anh.length} ảnh rồi dừng — thử lại ảnh còn lại`,
+      );
+      return;
+    }
+  }
+  toast.success(anh.length > 1 ? `Đã gửi ${anh.length} ảnh kèm lời nhắn` : 'Đã gửi ảnh kèm lời nhắn');
+}
+
 function onTemplateSelect(payload: { text: string; styles?: Array<{ st: string; start: number; len: number }> }, templateId: string) {
   const pos = slashTriggerPos.value;
   const before = pos >= 0 ? inputText.value.slice(0, pos) : '';
   const merged = before + payload.text;
+
+  // Mẫu CÓ ẢNH → gửi thẳng luôn (chữ + ảnh cùng lúc), không nhét vào ô soạn.
+  // Đây đúng thứ nhân viên xin: "gửi kèm cả tin nhắn và ảnh" trong một thao tác.
+  const mauDangChon = templates.value.find((t) => t.id === templateId);
+  const anhKem = mauDangChon?.attachments ?? [];
+  if (anhKem.length) {
+    showTemplatePopup.value = false;
+    slashTriggerPos.value = -1;
+    templateQuery.value = '';
+    inputText.value = '';
+    (editorRef.value as any)?.applyRichPayload?.({ text: '', styles: [] }, { focus: false });
+    void guiMauCoAnh(merged, anhKem);
+    api.post(`/automation/templates/${templateId}/track-use`).catch(() => {});
+    return;
+  }
+
   // Dịch styles theo độ dài phần "before" (mẫu được nối sau before).
   const shift = before.length;
   const mergedStyles = (payload.styles ?? []).map((s) => ({ ...s, start: s.start + shift }));

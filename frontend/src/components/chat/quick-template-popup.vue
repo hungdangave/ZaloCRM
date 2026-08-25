@@ -47,6 +47,10 @@
             </span>
             <span class="qtp-item-sub">{{ plainOf(tpl) }}</span>
           </span>
+          <span v-if="(tpl.attachments || []).length" class="qtp-item-img"
+            :title="`Mẫu này có ${tpl.attachments!.length} ảnh — bấm là GỬI NGAY cả chữ lẫn ảnh`">
+            🖼 {{ tpl.attachments!.length }}
+          </span>
           <span v-if="(tpl.tagIds || []).length" class="qtp-item-tag">{{ shortTag(tpl.tagIds![0]) }}</span>
         </button>
         <div v-if="!filtered.length" class="qtp-empty">
@@ -69,6 +73,8 @@ import { computed, ref, watch, nextTick, onBeforeUnmount } from 'vue';
 interface RichPayload { text: string; styles?: Array<{ st: string; start: number; len: number }> }
 interface Template {
   id: string;
+  /** Ảnh kèm — có ảnh nghĩa là bấm chọn sẽ GỬI NGAY (chữ + ảnh), không chèn vào ô soạn. */
+  attachments?: Array<{ mediaId: string; name?: string }>;
   name: string;
   shortcut?: string | null;
   content: string;
@@ -345,6 +351,11 @@ defineExpose({ onKey });
 .qtp-item-name { font-size: 13px; font-weight: 600; color: #141a24; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .qtp-item-sc { font-size: 11px; font-weight: 600; color: #0f6ea3; background: #eef6fb; padding: 1px 5px; border-radius: 5px; margin-left: 5px; font-family: ui-monospace, monospace; }
 .qtp-item-sub { font-size: 11.5px; color: #6b7280; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.qtp-item-img {
+  flex: none; margin-left: 6px; padding: 1px 6px; border-radius: 999px;
+  background: var(--brand-soft, #F7E9EA); color: var(--brand-700, #631015);
+  font-size: 11px; font-weight: 700;
+}
 .qtp-item-tag { flex-shrink: 0; font-size: 10px; padding: 2px 7px; border-radius: 6px; background: #eef2f7; color: #4b5563; font-weight: 500; white-space: nowrap; }
 .qtp-empty { padding: 18px; text-align: center; color: #9ca3af; font-size: 12.5px; font-style: italic; }
 

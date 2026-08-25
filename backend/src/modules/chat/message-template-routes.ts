@@ -30,6 +30,15 @@ import { prisma } from '../../shared/database/prisma-client.js';
 import { authMiddleware } from '../auth/auth-middleware.js';
 import { logger } from '../../shared/utils/logger.js';
 
+/**
+ * Một ảnh kèm mẫu — chỉ giữ **mã ảnh trong kho media**, không nhúng bytes, không giữ URL
+ * làm nguồn chân lý (URL kho có thể đổi; mã thì không).
+ * Gửi đi bằng `POST /api/v1/media/:id/send` — đường SẴN CÓ, đã lo đủ: đóng dấu logo,
+ * chặn nick riêng tư, chặn nick đã xoá, ghi tin vào CRM. KHÔNG viết lại phần gửi:
+ * đó là chỗ dễ sinh lỗi nhất và đã có bản chạy tốt.
+ */
+interface AnhKem { mediaId: string; name?: string }
+
 interface ThanMau {
   name?: string;
   content?: string;
@@ -38,6 +47,7 @@ interface ThanMau {
   category?: string | null;
   tagIds?: string[];
   visibility?: string;
+  attachments?: AnhKem[];
 }
 
 /** Rút text thuần từ contentRich nếu người dùng chỉ gửi bản có định dạng. */
@@ -52,6 +62,29 @@ function chuanHoaGoTat(v: unknown): string | null {
   if (typeof v !== 'string') return null;
   const s = v.trim().replace(/^\/+/, '').replace(/\s+/g, '').toLowerCase();
   return s || null;
+}
+
+/**
+ * Lọc danh sách ảnh kèm: chỉ nhận URL http(s), tối đa 12 ảnh.
+ * 12 là TRẦN CỦA ZALO cho một cụm album — gửi hơn thì SDK cắt, nên chặn ngay từ đầu
+ * cho người dùng biết, thay vì để họ tưởng đã gửi đủ (send-block từng dính lỗi này).
+ */
+const TRAN_ANH_MOI_MAU = 12;
+function locAnhKem(v: unknown): AnhKem[] {
+  if (!Array.isArray(v)) return [];
+  const ra: AnhKem[] = [];
+  const daCo = new Set<string>();
+  for (const it of v) {
+    const mediaId = typeof it?.mediaId === 'string' ? it.mediaId.trim() : '';
+    if (!mediaId || daCo.has(mediaId)) continue; // khử trùng: gửi 2 lần cùng 1 ảnh là lỗi
+    daCo.add(mediaId);
+    ra.push({
+      mediaId,
+      ...(typeof it?.name === 'string' && it.name ? { name: it.name.slice(0, 200) } : {}),
+    });
+    if (ra.length >= TRAN_ANH_MOI_MAU) break;
+  }
+  return ra;
 }
 
 function laChuHoacQuanTri(role?: string): boolean {
@@ -83,6 +116,7 @@ export async function messageTemplateRoutes(app: FastifyInstance): Promise<void>
           contentRich: t.contentRich,
           category: t.category,
           tagIds: t.tagIds,
+          attachments: (t.attachments as AnhKem[] | null) ?? [],
           visibility: t.visibility,
           // Giao diện dùng cờ này để tách nhóm "Của tôi" / "Cả đội".
           isPersonal: t.ownerUserId === user.id,
@@ -103,8 +137,12 @@ export async function messageTemplateRoutes(app: FastifyInstance): Promise<void>
       const than = (request.body ?? {}) as ThanMau;
       const ten = (than.name ?? '').trim();
       const noiDung = layNoiDungThuan(than).trim();
+      const anh = locAnhKem(than.attachments);
       if (!ten) return reply.status(400).send({ error: 'Chưa đặt tên mẫu' });
-      if (!noiDung) return reply.status(400).send({ error: 'Nội dung mẫu đang trống' });
+      // Mẫu CHỈ có ảnh (không chữ) là hợp lệ — sale hay gửi mỗi bảng giá.
+      if (!noiDung && !anh.length) {
+        return reply.status(400).send({ error: 'Mẫu phải có nội dung hoặc ít nhất 1 ảnh' });
+      }
 
       const congKhai = than.visibility === 'public';
       const mau = await prisma.messageTemplate.create({
@@ -121,6 +159,7 @@ export async function messageTemplateRoutes(app: FastifyInstance): Promise<void>
           shortcut: chuanHoaGoTat(than.shortcut),
           category: than.category?.trim() || null,
           tagIds: Array.isArray(than.tagIds) ? than.tagIds.filter((x) => typeof x === 'string') : [],
+          attachments: anh.length ? anh : undefined,
         },
       });
       logger.info('[templates] tao mau "%s" (%s) boi user=%s', ten, mau.visibility, user.id);
@@ -164,8 +203,12 @@ export async function messageTemplateRoutes(app: FastifyInstance): Promise<void>
       const noiDung = than.content !== undefined || than.contentRich !== undefined
         ? layNoiDungThuan(than).trim()
         : mau.content;
+      const anhCu = (mau.attachments as AnhKem[] | null) ?? [];
+      const anh = than.attachments !== undefined ? locAnhKem(than.attachments) : anhCu;
       if (!ten) return reply.status(400).send({ error: 'Chưa đặt tên mẫu' });
-      if (!noiDung) return reply.status(400).send({ error: 'Nội dung mẫu đang trống' });
+      if (!noiDung && !anh.length) {
+        return reply.status(400).send({ error: 'Mẫu phải có nội dung hoặc ít nhất 1 ảnh' });
+      }
 
       const congKhai = than.visibility !== undefined ? than.visibility === 'public' : mau.visibility === 'public';
       const capNhat = await prisma.messageTemplate.update({
@@ -177,6 +220,7 @@ export async function messageTemplateRoutes(app: FastifyInstance): Promise<void>
           ...(than.shortcut !== undefined ? { shortcut: chuanHoaGoTat(than.shortcut) } : {}),
           ...(than.category !== undefined ? { category: than.category?.trim() || null } : {}),
           ...(Array.isArray(than.tagIds) ? { tagIds: than.tagIds.filter((x) => typeof x === 'string') } : {}),
+          ...(than.attachments !== undefined ? { attachments: anh.length ? anh : undefined } : {}),
           ...(than.visibility !== undefined
             ? { visibility: congKhai ? 'public' : 'private', ownerUserId: congKhai ? null : request.user!.id }
             : {}),
